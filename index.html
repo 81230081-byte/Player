@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1f0d">
+<meta name="description" content="تطبيق العادات الإسلامية">
+<title>عاداتي</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* { font-family: 'Noto Sans Arabic', sans-serif; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+html, body { margin: 0; padding: 0; background: #0a150a; color: white; height: 100%; overflow: hidden; overscroll-behavior-y: none; }
+#app { height: 100vh; width: 100vw; max-width: 430px; margin: 0 auto; position: relative; background: #0d1f0d; overflow: hidden; display: flex; flex-direction: column; }
+.scroll-area { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: 100px; }
+.scroll-area::-webkit-scrollbar { display: none; }
+.glass-card { background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; }
+.prayer-glow { background: linear-gradient(135deg, #1a5c3a 0%, #0d8b4a 50%, #1a5c3a 100%); box-shadow: 0 0 40px rgba(13,139,74,0.3), inset 0 1px 0 rgba(255,255,255,0.2); }
+.habit-ring { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.check-anim { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.check-anim.checked { background: #0d8b4a; border-color: #0d8b4a; transform: scale(1.1); }
+.check-icon { font-size: 12px; opacity: 0; transition: opacity 0.2s; }
+.check-anim.checked .check-icon { opacity: 1; }
+.bottom-nav { height: 70px; background: rgba(13, 31, 13, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 100; }
+.nav-item { background: none; border: none; color: rgba(255,255,255,0.4); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; padding: 8px 12px; transition: color 0.3s; cursor: pointer; }
+.nav-item.active { color: #0d8b4a; }
+.nav-item i { font-size: 20px; }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.streak-flame { animation: flame 2s ease-in-out infinite; }
+@keyframes flame { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.pulse-ring { animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+@keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2); opacity: 0; } }
+.switch { position: relative; width: 50px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 28px; }
+.slider:before { position: absolute; content: ""; height: 22px; width: 22px; right: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #0d8b4a; }
+input:checked + .slider:before { transform: translateX(-22px); }
+.verse-card { background: linear-gradient(135deg, rgba(13,139,74,0.15), rgba(26,92,58,0.1)); border: 1px solid rgba(13,139,74,0.2); }
+.hide-scroll::-webkit-scrollbar { display: none; }
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: rgba(13,139,74,0.95); color: white; padding: 12px 24px; border-radius: 16px; font-size: 14px; z-index: 300; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); backdrop-filter: blur(10px); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; display: none; }
+.modal-content { position: fixed; bottom: 0; left: 0; right: 0; background: #0d1f0d; border-radius: 30px 30px 0 0; padding: 24px; z-index: 201; max-height: 80vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
+.modal-content.open { transform: translateY(0); }
+.progress-ring-circle { transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.haptic:active { transform: scale(0.96); }
+.garden-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 8px; background: rgba(255,255,255,0.05); }
+.confetti { position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 9999; animation: confetti-fall 2s ease-out forwards; }
+@keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(400px) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+<body>
+<div id="app">
+<div id="toast" class="toast"></div>
+<div class="scroll-area">
+
+<!-- ===== HOME PAGE ===== -->
+<div id="page-home" class="page active">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <p class="text-white/50 text-xs mb-1" id="current-date">--</p>
+            <h1 class="text-white text-2xl font-bold">السلام عليكم 👋</h1>
+            <p class="text-emerald-400 text-sm mt-1">يومك مبارك</p>
+        </div>
+        <div class="relative">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-lg border-2 border-emerald-400/30">أ</div>
+            <div class="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-[10px] text-white font-bold">٣</div>
+        </div>
+    </div>
+
+    <!-- Prayer Card -->
+    <div class="prayer-glow rounded-3xl p-5 mb-5 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="relative z-10">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p class="text-white/70 text-xs mb-1">الصلاة القادمة</p>
+                    <h2 class="text-3xl font-bold">المغرب</h2>
+                    <p class="text-emerald-200 text-lg">٦:٤٢ م</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-light" id="countdown">--:--</div>
+                    <p class="text-white/60 text-xs mt-1">متبقي</p>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4 pt-4 border-t border-white/10">
+                <div class="text-center cursor-pointer haptic" onclick="togglePrayer(this, 'fajr')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all prayer-icon" id="prayer-fajr"><i class="fas fa-check text-emerald-300 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">الفجر</span>
+                </div>
+                <div class="text-center cursor-pointer haptic" onclick="togglePrayer(this, 'dhuhr')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all prayer-icon" id="prayer-dhuhr"><i class="fas fa-check text-emerald-300 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">الظهر</span>
+                </div>
+                <div class="text-center cursor-pointer haptic" onclick="togglePrayer(this, 'asr')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all prayer-icon" id="prayer-asr"><i class="fas fa-check text-emerald-300 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">العصر</span>
+                </div>
+                <div class="text-center cursor-pointer opacity-50 haptic" onclick="togglePrayer(this, 'maghrib')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all prayer-icon relative" id="prayer-maghrib"><i class="fas fa-moon text-white/50 text-sm"></i><div class="absolute inset-0 rounded-full border-2 border-amber-400/50 pulse-ring"></div></div>
+                    <span class="text-[10px] text-white/80">المغرب</span>
+                </div>
+                <div class="text-center cursor-pointer opacity-50 haptic" onclick="togglePrayer(this, 'isha')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all prayer-icon" id="prayer-isha"><i class="fas fa-star text-white/50 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">العشاء</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="glass-card p-5 mb-5">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-white font-bold text-lg">تقدم يومك</h3>
+            <span class="text-emerald-400 text-sm font-medium" id="day-progress">0%</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative w-20 h-20 flex-shrink-0">
+                <svg class="w-20 h-20 -rotate-90">
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#0d8b4a" stroke-width="6" stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round" class="progress-ring-circle" id="progress-circle"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center"><i class="fas fa-fire text-amber-400 text-xl streak-flame"></i></div>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-amber-400 font-bold text-2xl" id="streak-days">0</span>
+                    <span class="text-white/60 text-sm">يوم متتالي 🔥</span>
+                </div>
+                <p class="text-white/40 text-xs">أكمل عاداتك اليوم للحفاظ على الاستمرارية</p>
+                <div class="flex gap-1 mt-2" id="week-dots"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex gap-3 mb-5 overflow-x-auto hide-scroll">
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('wird')"><i class="fas fa-book-open"></i> الورد</button>
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-sky-600/30 border border-sky-500/30 text-sky-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('athkar')"><i class="fas fa-sun"></i> الأذكار</button>
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-violet-600/30 border border-violet-500/30 text-violet-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('learn')"><i class="fas fa-graduation-cap"></i> تعلم</button>
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-orange-600/30 border border-orange-500/30 text-orange-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('exercise')"><i class="fas fa-running"></i> رياضة</button>
+    </div>
+
+    <!-- Habits -->
+    <h3 class="text-white font-bold text-lg mb-3">عادات اليوم</h3>
+    <div class="space-y-3 mb-5" id="habits-list"></div>
+
+    <!-- Verse -->
+    <div class="verse-card rounded-3xl p-5 mb-5">
+        <div class="flex items-center gap-2 mb-3"><i class="fas fa-quote-right text-emerald-400"></i><span class="text-emerald-400 text-xs font-medium">آية اليوم</span></div>
+        <p class="text-white text-lg leading-relaxed text-center font-medium" style="line-height: 2;">﴿وَأَقِمِ الصَّلَاةَ لِذِكْرِي﴾</p>
+        <p class="text-white/50 text-xs text-center mt-2">سورة طه - الآية ١٤</p>
+    </div>
+</div>
+
+<!-- ===== HABITS PAGE ===== -->
+<div id="page-habits" class="page">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-white text-2xl font-bold">عاداتي</h1>
+        <button class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white haptic" onclick="showToast('قريباً')"><i class="fas fa-plus"></i></button>
+    </div>
+    <div class="flex gap-2 mb-5 overflow-x-auto hide-scroll pb-2">
+        <button class="px-4 py-2 rounded-full text-sm font-medium bg-emerald-600 text-white shadow-lg shadow-emerald-500/30">الكل</button>
+        <button class="px-4 py-2 rounded-full text-sm font-medium text-white/60 bg-white/5">روحانية</button>
+        <button class="px-4 py-2 rounded-full text-sm font-medium text-white/60 bg-white/5">صحة</button>
+        <button class="px-4 py-2 rounded-full text-sm font-medium text-white/60 bg-white/5">تعلم</button>
+    </div>
+    <div class="glass-card p-4 mb-5">
+        <h3 class="text-white font-semibold mb-3 text-sm">النشاط - آخر ٤ أسابيع</h3>
+        <div class="flex gap-1 flex-wrap justify-center" id="heatmap"></div>
+        <div class="flex justify-between items-center mt-3 text-[10px] text-white/40">
+            <span>أقل</span>
+            <div class="flex gap-1"><div class="w-3 h-3 rounded bg-white/5"></div><div class="w-3 h-3 rounded bg-emerald-500/30"></div><div class="w-3 h-3 rounded bg-emerald-500/60"></div><div class="w-3 h-3 rounded bg-emerald-500"></div></div>
+            <span>أكثر</span>
+        </div>
+    </div>
+    <div class="space-y-3" id="all-habits"></div>
+</div>
+
+<!-- ===== ATHKAR PAGE ===== -->
+<div id="page-athkar" class="page">
+    <div class="mb-6">
+        <h1 class="text-white text-2xl font-bold">الأذكار</h1>
+        <p class="text-white/50 text-sm">أذكار الصباح والمساء</p>
+    </div>
+    <div class="flex gap-2 mb-5">
+        <button class="flex-1 py-3 rounded-2xl bg-emerald-600 text-white font-medium text-sm haptic" onclick="switchAthkarTab('morning', this)"><i class="fas fa-sun mr-1"></i> الصباح</button>
+        <button class="flex-1 py-3 rounded-2xl bg-white/5 text-white/60 font-medium text-sm haptic" onclick="switchAthkarTab('evening', this)"><i class="fas fa-moon mr-1"></i> المساء</button>
+        <button class="flex-1 py-3 rounded-2xl bg-white/5 text-white/60 font-medium text-sm haptic" onclick="switchAthkarTab('sleep', this)"><i class="fas fa-bed mr-1"></i> النوم</button>
+    </div>
+    <div class="glass-card p-3 mb-5">
+        <div class="flex justify-between text-xs text-white/60 mb-2"><span>التقدم</span><span id="athkar-progress-text">٠/٧</span></div>
+        <div class="h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full transition-all" style="width: 0%" id="athkar-progress-bar"></div></div>
+    </div>
+    <div class="space-y-3" id="athkar-list"></div>
+</div>
+
+<!-- ===== SOCIAL PAGE ===== -->
+<div id="page-social" class="page">
+    <div class="mb-6">
+        <h1 class="text-white text-2xl font-bold">مجتمعي</h1>
+        <p class="text-white/50 text-sm">تحفيز وروابط اجتماعية</p>
+    </div>
+    <div class="glass-card p-5 mb-5">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white text-xl"><i class="fas fa-home"></i></div>
+                <div><h3 class="text-white font-bold">عائلتي</h3><p class="text-white/50 text-xs">٥ أعضاء</p></div>
+            </div>
+            <span class="text-emerald-400 text-sm font-medium">#١</span>
+        </div>
+        <div class="flex gap-3 mb-4 overflow-x-auto hide-scroll pb-2">
+            <div class="text-center flex-shrink-0">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg border-2 border-amber-400 relative">أ<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-[8px]">👑</div></div>
+                <p class="text-white/70 text-[10px] mt-1">أنت</p><p class="text-amber-400 text-[10px]">١٢ يوم</p>
+            </div>
+            <div class="text-center flex-shrink-0">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg border-2 border-sky-400">م</div>
+                <p class="text-white/70 text-[10px] mt-1">محمد</p><p class="text-emerald-400 text-[10px]">٨ أيام</p>
+            </div>
+            <div class="text-center flex-shrink-0">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center text-white font-bold text-lg border-2 border-pink-400">ف</div>
+                <p class="text-white/70 text-[10px] mt-1">فاطمة</p><p class="text-emerald-400 text-[10px]">٥ أيام</p>
+            </div>
+        </div>
+        <div class="bg-white/5 rounded-2xl p-3">
+            <div class="flex justify-between text-xs text-white/60 mb-2"><span>تقدم المجموعة اليوم</span><span>٧٨%</span></div>
+            <div class="h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full" style="width: 78%"></div></div>
+        </div>
+    </div>
+    <h3 class="text-white font-bold mb-3">التحديات</h3>
+    <div class="space-y-3 mb-5">
+        <div class="glass-card p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">🏆</div>
+                <div class="flex-1">
+                    <h4 class="text-white font-semibold text-sm">تحدي ٣٠ يوم</h4>
+                    <p class="text-white/40 text-xs">استمر في جميع العادات</p>
+                    <div class="flex items-center gap-2 mt-1"><div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-amber-500 rounded-full" style="width: 40%"></div></div><span class="text-amber-400 text-xs">١٢/٣٠</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-lg" onclick="showToast('تم إرسال التشجيع! 💚')"><i class="fas fa-heart mr-2"></i> شجع أصدقاءك</button>
+</div>
+
+<!-- ===== PROFILE PAGE ===== -->
+<div id="page-profile" class="page">
+    <div class="text-center mb-6">
+        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 mx-auto flex items-center justify-center text-white text-3xl font-bold border-4 border-emerald-500/30 mb-3">أ</div>
+        <h2 class="text-white text-xl font-bold">أحمد</h2>
+        <p class="text-white/50 text-sm">مستوى: المبتدئ 🌱</p>
+    </div>
+    <div class="glass-card p-4 mb-5">
+        <div class="flex justify-between items-center mb-2"><span class="text-white/60 text-xs">المستوى ١: المبتدئ</span><span class="text-emerald-400 text-xs" id="xp-text">٠/١٠٠ XP</span></div>
+        <div class="h-3 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all" style="width: 0%" id="xp-bar"></div></div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-emerald-400 mb-1" id="stat-streak">0</div><p class="text-white/50 text-xs">يوم متتالي</p></div>
+        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-amber-400 mb-1" id="stat-rate">0%</div><p class="text-white/50 text-xs">معدل الإنجاز</p></div>
+        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-sky-400 mb-1">٧</div><p class="text-white/50 text-xs">عادة نشطة</p></div>
+        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-violet-400 mb-1" id="stat-xp">0</div><p class="text-white/50 text-xs">نقطة خبرة</p></div>
+    </div>
+    <h3 class="text-white font-bold mb-3">حديقة الأعمال 🌱</h3>
+    <div class="glass-card p-4 mb-5">
+        <p class="text-white/50 text-xs mb-3 text-center">كل يوم من الاستمرارية يزرع زهرة</p>
+        <div class="grid grid-cols-7 gap-2" id="garden-grid"></div>
+    </div>
+    <h3 class="text-white font-bold mb-3">الإنجازات</h3>
+    <div class="flex gap-3 overflow-x-auto hide-scroll pb-3 mb-5">
+        <div class="glass-card p-4 min-w-[100px] text-center opacity-40" id="badge-prayer"><div class="text-3xl mb-1">🕌</div><p class="text-white text-xs font-medium">الملتزم</p><p class="text-white/40 text-[10px]">٣٠ يوم صلاة</p></div>
+        <div class="glass-card p-4 min-w-[100px] text-center opacity-40" id="badge-athkar"><div class="text-3xl mb-1">📿</div><p class="text-white text-xs font-medium">الذاكر</p><p class="text-white/40 text-[10px]">٧ أيام أذكار</p></div>
+        <div class="glass-card p-4 min-w-[100px] text-center opacity-40" id="badge-learn"><div class="text-3xl mb-1">📚</div><p class="text-white text-xs font-medium">الطالب</p><p class="text-white/40 text-[10px]">٥٠ درس</p></div>
+        <div class="glass-card p-4 min-w-[100px] text-center opacity-40" id="badge-exercise"><div class="text-3xl mb-1">🏃</div><p class="text-white text-xs font-medium">الرياضي</p><p class="text-white/40 text-[10px]">٣٠ يوم رياضة</p></div>
+    </div>
+    <h3 class="text-white font-bold mb-3">الإعدادات</h3>
+    <div class="space-y-2 mb-5">
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3"><i class="fas fa-bell text-emerald-400"></i><span class="text-white text-sm">الإشعارات</span></div>
+            <label class="switch"><input type="checkbox" checked onchange="toggleNotifications(this)"><span class="slider"></span></label>
+        </div>
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3"><i class="fas fa-volume-up text-emerald-400"></i><span class="text-white text-sm">الصوت</span></div>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3"><i class="fas fa-mosque text-emerald-400"></i><span class="text-white text-sm">طريقة الحساب</span></div>
+            <span class="text-white/50 text-xs">رابطة العالم الإسلامي</span>
+        </div>
+    </div>
+    <button class="w-full py-3 rounded-2xl bg-red-500/20 text-red-400 text-sm font-medium mb-8" onclick="resetData()"><i class="fas fa-trash-alt mr-2"></i> إعادة ضبط البيانات</button>
+</div>
+
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+    <button class="nav-item active" onclick="navigateTo('home', this)"><i class="fas fa-home"></i><span>الرئيسية</span></button>
+    <button class="nav-item" onclick="navigateTo('habits', this)"><i class="fas fa-chart-bar"></i><span>العادات</span></button>
+    <button class="nav-item" onclick="navigateTo('athkar', this)"><i class="fas fa-pray"></i><span>الأذكار</span></button>
+    <button class="nav-item" onclick="navigateTo('social', this)"><i class="fas fa-users"></i><span>مجتمعي</span></button>
+    <button class="nav-item" onclick="navigateTo('profile', this)"><i class="fas fa-user"></i><span>أنا</span></button>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+<div id="modal-content" class="modal-content">
+    <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+    <div id="modal-body"></div>
+</div>
+
+<script>
+
+// ===================== DATA =====================
+const habitsData = [
+    { id: 'wird', title: 'الورد اليومي', desc: 'جزء من القرآن', icon: 'fa-book-open', color: 'emerald', xp: 15 },
+    { id: 'athkar_morning', title: 'أذكار الصباح', desc: 'بعد صلاة الفجر', icon: 'fa-sun', color: 'sky', xp: 20 },
+    { id: 'athkar_evening', title: 'أذكار المساء', desc: 'بعد صلاة العصر', icon: 'fa-moon', color: 'indigo', xp: 20 },
+    { id: 'learn', title: 'تعلم العلم الشرعي', desc: 'درس 15 دقيقة', icon: 'fa-graduation-cap', color: 'violet', xp: 15 },
+    { id: 'exercise', title: 'الرياضة', desc: '30 دقيقة', icon: 'fa-running', color: 'orange', xp: 10 },
+    { id: 'social', title: 'التواصل الاجتماعي', desc: 'اتصال بأحد الوالدين', icon: 'fa-users', color: 'pink', xp: 5 },
+    { id: 'rest', title: 'الترويح عن النفس', desc: 'نشاط ممتع 20 دقيقة', icon: 'fa-coffee', color: 'amber', xp: 5 }
+];
+
+const athkarData = {
+    morning: [
+        { text: 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', source: 'سنن ابن ماجه', count: 1 },
+        { text: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ', source: 'الترمذي', count: 3 },
+        { text: 'قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾', source: 'البخاري ومسلم', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِنْ شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾', source: 'البخاري ومسلم', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَهِ النَّاسِ ﴿٣﴾ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾', source: 'البخاري ومسلم', count: 3 },
+        { text: 'أَصْبَحْنَا عَلَى فِطْرَةِ الْإِسْلَامِ، وَعَلَى كَلِمَةِ الْإِخْلَاصِ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ، وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِينَ', source: 'أبو داود', count: 1 },
+        { text: 'اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ', source: 'الترمذي', count: 1 }
+    ],
+    evening: [
+        { text: 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', source: 'سنن ابن ماجه', count: 1 },
+        { text: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ', source: 'الترمذي', count: 3 },
+        { text: 'قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾', source: 'البخاري ومسلم', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِنْ شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾', source: 'البخاري ومسلم', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَهِ النَّاسِ ﴿٣﴾ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾', source: 'البخاري ومسلم', count: 3 },
+        { text: 'أَمْسَيْنَا عَلَى فِطْرَةِ الْإِسْلَامِ، وَعَلَى كَلِمَةِ الْإِخْلَاصِ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ، وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِينَ', source: 'أبو داود', count: 1 },
+        { text: 'اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ', source: 'الترمذي', count: 1 }
+    ],
+    sleep: [
+        { text: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', source: 'البخاري', count: 1 },
+        { text: 'سُبْحَانَ اللَّهِ', source: 'البخاري ومسلم', count: 33 },
+        { text: 'الْحَمْدُ لِلَّهِ', source: 'البخاري ومسلم', count: 33 },
+        { text: 'اللَّهُ أَكْبَرُ', source: 'البخاري ومسلم', count: 34 },
+        { text: 'اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ', source: 'أبو داود', count: 1 }
+    ]
+};
+
+// ===================== STATE =====================
+let state = {
+    prayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
+    habits: {},
+    athkar: { morning: {}, evening: {}, sleep: {} },
+    streak: 0,
+    xp: 0,
+    garden: [],
+    lastDate: null
+};
+
+function loadState() {
+    const saved = localStorage.getItem('islamicHabitApp');
+    if (saved) {
+        state = JSON.parse(saved);
+    } else {
+        habitsData.forEach(h => state.habits[h.id] = { completed: false, streak: 0 });
+        ['morning', 'evening', 'sleep'].forEach(type => {
+            athkarData[type].forEach((_, i) => state.athkar[type][i] = 0);
+        });
+    }
+    checkNewDay();
+}
+
+function saveState() {
+    localStorage.setItem('islamicHabitApp', JSON.stringify(state));
+}
+
+function checkNewDay() {
+    const today = new Date().toDateString();
+    if (state.lastDate !== today) {
+        habitsData.forEach(h => {
+            if (state.habits[h.id] && state.habits[h.id].completed) {
+                state.habits[h.id].streak++;
+            } else if (state.habits[h.id]) {
+                state.habits[h.id].streak = 0;
+            }
+            if (!state.habits[h.id]) state.habits[h.id] = {};
+            state.habits[h.id].completed = false;
+        });
+        Object.keys(state.prayers).forEach(k => state.prayers[k] = false);
+        ['morning', 'evening', 'sleep'].forEach(type => {
+            athkarData[type].forEach((_, i) => state.athkar[type][i] = 0);
+        });
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (state.lastDate === yesterday.toDateString()) {
+            state.streak++;
+            state.garden.push(true);
+        } else if (state.lastDate !== today) {
+            state.streak = 0;
+            state.garden.push(false);
+        }
+        state.lastDate = today;
+        saveState();
+    }
+}
+
+// ===================== NAVIGATION =====================
+function navigateTo(page, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    if (page === 'habits') renderHabitsPage();
+    if (page === 'athkar') renderAthkar('morning');
+    if (page === 'profile') renderProfile();
+}
+
+// ===================== HOME =====================
+function renderHomeHabits() {
+    const container = document.getElementById('habits-list');
+    const colors = { emerald: 'from-emerald-600 to-emerald-800', sky: 'from-sky-600 to-sky-800', indigo: 'from-indigo-600 to-indigo-800', violet: 'from-violet-600 to-violet-800', orange: 'from-orange-600 to-red-700', pink: 'from-pink-600 to-rose-700', amber: 'from-amber-600 to-orange-700' };
+    container.innerHTML = habitsData.map(h => {
+        const completed = state.habits[h.id]?.completed;
+        return `<div class="glass-card p-4 flex items-center gap-4 cursor-pointer haptic" onclick="toggleHabitHome('${h.id}')">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${colors[h.color]} flex items-center justify-center text-white text-xl habit-ring ${completed ? 'completed' : ''}"><i class="fas ${h.icon}"></i></div>
+            <div class="flex-1"><h4 class="text-white font-semibold">${h.title}</h4><p class="text-white/50 text-xs">${h.desc}</p>${state.habits[h.id]?.streak > 0 ? `<span class="text-amber-400 text-xs">⚡ ${state.habits[h.id].streak} أيام</span>` : ''}</div>
+            <div class="check-anim ${completed ? 'checked' : ''}"><i class="fas fa-check text-white check-icon"></i></div>
+        </div>`;
+    }).join('');
+    updateProgress();
+}
+
+function toggleHabitHome(id) {
+    if (!state.habits[id]) state.habits[id] = { completed: false, streak: 0 };
+    state.habits[id].completed = !state.habits[id].completed;
+    if (state.habits[id].completed) {
+        state.xp += habitsData.find(h => h.id === id).xp;
+        showToast('+' + habitsData.find(h => h.id === id).xp + ' نقطة! 🎉');
+        createConfetti();
+    }
+    saveState();
+    renderHomeHabits();
+    renderProfile();
+}
+
+function togglePrayer(el, name) {
+    state.prayers[name] = !state.prayers[name];
+    const icon = el.querySelector('.prayer-icon');
+    const i = icon.querySelector('i');
+    if (state.prayers[name]) {
+        icon.classList.remove('bg-white/10'); icon.classList.add('bg-emerald-500');
+        i.className = 'fas fa-check text-white text-sm';
+        el.classList.remove('opacity-50');
+        state.xp += 10; showToast('+10 نقاط! 🕌'); createConfetti();
+    } else {
+        icon.classList.add('bg-white/10'); icon.classList.remove('bg-emerald-500');
+        i.className = name === 'maghrib' ? 'fas fa-moon text-white/50 text-sm' : name === 'isha' ? 'fas fa-star text-white/50 text-sm' : 'fas fa-check text-emerald-300 text-sm';
+        if (name === 'maghrib' || name === 'isha') el.classList.add('opacity-50');
+    }
+    saveState(); updateProgress(); renderProfile();
+}
+
+function updateProgress() {
+    const total = 5 + habitsData.length;
+    const donePrayers = Object.values(state.prayers).filter(Boolean).length;
+    const doneHabits = habitsData.filter(h => state.habits[h.id]?.completed).length;
+    const percent = Math.round(((donePrayers + doneHabits) / total) * 100);
+    document.getElementById('day-progress').textContent = percent + '%';
+    document.getElementById('progress-circle').style.strokeDashoffset = 201 - (201 * percent / 100);
+    document.getElementById('streak-days').textContent = state.streak;
+    const dots = document.getElementById('week-dots');
+    const days = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const today = new Date().getDay();
+    dots.innerHTML = days.map((d, i) => `<div class="w-6 h-6 rounded ${i === today ? 'bg-emerald-500/50' : 'bg-white/10'} flex items-center justify-center text-[10px] ${i === today ? 'text-emerald-300' : 'text-white/30'}">${i === today ? '✓' : d[0]}</div>`).join('');
+}
+
+// ===================== HABITS PAGE =====================
+function renderHabitsPage() {
+    const heatmap = document.getElementById('heatmap');
+    heatmap.innerHTML = '';
+    const levels = ['bg-white/5', 'bg-emerald-500/30', 'bg-emerald-500/60', 'bg-emerald-500'];
+    for (let i = 0; i < 28; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'heatmap-cell ' + levels[Math.floor(Math.random() * levels.length)];
+        heatmap.appendChild(cell);
+    }
+    const list = document.getElementById('all-habits');
+    list.innerHTML = habitsData.map(h => {
+        const s = state.habits[h.id] || { streak: 0 };
+        return `<div class="glass-card p-4"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 rounded-xl bg-${h.color}-600/30 flex items-center justify-center text-${h.color}-400"><i class="fas ${h.icon}"></i></div><div class="flex-1"><h4 class="text-white font-semibold text-sm">${h.title}</h4><p class="text-white/40 text-xs">${h.desc}</p></div><div class="text-right"><span class="text-${h.color}-400 font-bold text-lg">${s.streak}</span><p class="text-white/40 text-[10px]">يوم متتالي</p></div></div><div class="flex gap-1">${Array(7).fill(0).map((_, i) => `<div class="flex-1 h-2 rounded-full ${Math.random() > 0.3 ? 'bg-' + h.color + '-500' : 'bg-white/10'}"></div>`).join('')}</div></div>`;
+    }).join('');
+}
+
+// ===================== ATHKAR =====================
+let currentAthkarType = 'morning';
+function switchAthkarTab(type, btn) {
+    currentAthkarType = type;
+    document.querySelectorAll('#page-athkar .flex-1').forEach(b => {
+        b.classList.remove('bg-emerald-600', 'text-white');
+        b.classList.add('bg-white/5', 'text-white/60');
+    });
+    btn.classList.remove('bg-white/5', 'text-white/60');
+    btn.classList.add('bg-emerald-600', 'text-white');
+    renderAthkar(type);
+}
+
+function renderAthkar(type) {
+    const list = document.getElementById('athkar-list');
+    const data = athkarData[type];
+    const progress = Object.values(state.athkar[type]).filter((v, i) => v >= data[i].count).length;
+    document.getElementById('athkar-progress-text').textContent = progress + '/' + data.length;
+    document.getElementById('athkar-progress-bar').style.width = (progress / data.length * 100) + '%';
+    list.innerHTML = data.map((a, i) => {
+        const current = state.athkar[type][i] || 0;
+        const done = current >= a.count;
+        return `<div class="glass-card p-5 ${done ? 'opacity-60' : ''}"><div class="flex justify-between items-start mb-3"><span class="text-emerald-400 text-xs font-medium bg-emerald-500/10 px-3 py-1 rounded-full">${a.count} ${a.count === 1 ? 'مرة' : 'مرات'}</span>${done ? '<span class="text-emerald-400 text-sm"><i class="fas fa-check-circle"></i></span>' : ''}</span></div><p class="text-white text-base leading-loose text-center mb-4" style="line-height: 2;">${a.text}</p><div class="flex justify-between items-center pt-3 border-t border-white/10"><span class="text-white/40 text-xs">${a.source}</span><div class="flex items-center gap-3"><span class="text-white/60 text-sm">${current}/${a.count}</span><button class="w-10 h-10 rounded-full ${done ? 'bg-emerald-800' : 'bg-emerald-600'} flex items-center justify-center text-white haptic" onclick="incrementAthkar('${type}', ${i}, ${a.count})" ${done ? 'disabled' : ''}><i class="fas fa-plus"></i></button></div></div></div>`;
+    }).join('');
+}
+
+function incrementAthkar(type, index, max) {
+    if (!state.athkar[type][index]) state.athkar[type][index] = 0;
+    state.athkar[type][index]++;
+    if (state.athkar[type][index] >= max) { state.xp += 5; showToast('ذكر مكتمل! +5 نقاط'); }
+    saveState(); renderAthkar(type);
+}
+
+// ===================== PROFILE =====================
+function renderProfile() {
+    document.getElementById('stat-streak').textContent = state.streak;
+    document.getElementById('stat-xp').textContent = state.xp;
+    document.getElementById('xp-text').textContent = (state.xp % 100) + '/100 XP';
+    document.getElementById('xp-bar').style.width = (state.xp % 100) + '%';
+    const total = 5 + habitsData.length;
+    const done = Object.values(state.prayers).filter(Boolean).length + habitsData.filter(h => state.habits[h.id]?.completed).length;
+    document.getElementById('stat-rate').textContent = Math.round(done / total * 100) + '%';
+    const garden = document.getElementById('garden-grid');
+    garden.innerHTML = '';
+    const flowers = ['🌱', '🌿', '🌷', '🌹', '🌻', '🌺', '🌳'];
+    for (let i = 0; i < 21; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'garden-cell';
+        if (i < state.garden.length) {
+            cell.textContent = state.garden[i] ? flowers[Math.min(Math.floor(state.streak / 5), 6)] : '🥀';
+            cell.style.background = state.garden[i] ? 'rgba(13,139,74,0.2)' : 'rgba(255,0,0,0.1)';
+        }
+        garden.appendChild(cell);
+    }
+    const prayerDays = Object.values(state.prayers).filter(Boolean).length;
+    if (prayerDays >= 1) document.getElementById('badge-prayer').classList.remove('opacity-40');
+    const athkarDone = Object.values(state.athkar.morning).some(v => v > 0);
+    if (athkarDone) document.getElementById('badge-athkar').classList.remove('opacity-40');
+}
+
+// ===================== MODALS =====================
+function openModal(type) {
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    const body = document.getElementById('modal-body');
+    let html = '';
+    if (type === 'wird') {
+        const h = state.habits.wird || { completed: false };
+        html = `<h2 class="text-white text-xl font-bold mb-4 text-center">الورد اليومي</h2><div class="glass-card p-5 mb-4 text-center"><span class="text-emerald-400 text-4xl font-bold">${h.completed ? '100%' : '0%'}</span><p class="text-white/50 text-sm mt-2">${h.completed ? 'تم بحمد الله' : 'لم يتم بعد'}</p></div><button class="w-full py-3 rounded-xl ${h.completed ? 'bg-emerald-800' : 'bg-emerald-600'} text-white font-medium mb-3 haptic" onclick="completeFromModal('wird')"><i class="fas fa-check mr-1"></i> ${h.completed ? 'تم' : 'أكملت الورد'}</button><button class="w-full py-3 rounded-xl bg-white/10 text-white font-medium haptic" onclick="closeModal()">إغلاق</button>`;
+    } else if (type === 'athkar') {
+        html = `<h2 class="text-white text-xl font-bold mb-4 text-center">الأذكار</h2><div class="glass-card p-5 mb-4 text-center"><div class="w-16 h-16 rounded-full bg-emerald-600/30 flex items-center justify-center mx-auto mb-3"><i class="fas fa-sun text-emerald-400 text-2xl"></i></div><p class="text-white/60 text-sm">انتقل لصفحة الأذكار لإكمالها</p></div><button class="w-full py-3 rounded-xl bg-sky-600 text-white font-medium mb-3 haptic" onclick="closeModal(); navigateTo('athkar', document.querySelectorAll('.nav-item')[2])"><i class="fas fa-play mr-2"></i> ابدأ الأذكار</button><button class="w-full py-3 rounded-xl bg-white/10 text-white font-medium haptic" onclick="closeModal()">لاحقاً</button>`;
+    } else if (type === 'learn') {
+        html = `<h2 class="text-white text-xl font-bold mb-4 text-center">تعلم العلم الشرعي</h2><div class="glass-card p-5 mb-4"><h3 class="text-white font-semibold mb-2">اليوم: أحكام الطهارة</h3><p class="text-white/60 text-sm mb-3">الدرس ٣: شروط صحة الوضوء</p><div class="h-2 bg-white/10 rounded-full overflow-hidden mb-2"><div class="h-full bg-violet-500 rounded-full" style="width: 60%"></div></div><p class="text-white/40 text-xs">٩ دقائق متبقية</p></div><button class="w-full py-3 rounded-xl bg-violet-600 text-white font-medium mb-3 haptic" onclick="completeFromModal('learn'); showToast('تم تسجيل الدرس! +15 نقاط')"><i class="fas fa-check mr-1"></i> أكملت الدرس</button><button class="w-full py-3 rounded-xl bg-white/10 text-white font-medium haptic" onclick="closeModal()">لاحقاً</button>`;
+    } else if (type === 'exercise') {
+        html = `<h2 class="text-white text-xl font-bold mb-4 text-center">الرياضة</h2><div class="glass-card p-5 mb-4 text-center"><div class="text-5xl mb-3">🏃</div><p class="text-white/60 text-sm">هدفك: ٣٠ دقيقة</p><p class="text-white/40 text-xs mt-1">المشي السريع أو تمارين منزلية</p></div><button class="w-full py-3 rounded-xl bg-orange-600 text-white font-medium mb-3 haptic" onclick="completeFromModal('exercise'); showToast('نشاط مكتمل! +10 نقاط')"><i class="fas fa-check mr-1"></i> أكملت النشاط</button><button class="w-full py-3 rounded-xl bg-white/10 text-white font-medium haptic" onclick="closeModal()">لاحقاً</button>`;
+    }
+    body.innerHTML = html;
+    overlay.style.display = 'block';
+    setTimeout(() => content.classList.add('open'), 10);
+}
+
+function closeModal() {
+    document.getElementById('modal-content').classList.remove('open');
+    setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300);
+}
+
+function completeFromModal(id) {
+    if (!state.habits[id]) state.habits[id] = { completed: false, streak: 0 };
+    state.habits[id].completed = true;
+    state.xp += habitsData.find(h => h.id === id).xp;
+    saveState(); renderHomeHabits(); renderProfile(); closeModal();
+    showToast('مكتمل! +' + habitsData.find(h => h.id === id).xp + ' نقاط');
+    createConfetti();
+}
+
+// ===================== UTILITIES =====================
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function createConfetti() {
+    const colors = ['#0d8b4a', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
+    for (let i = 0; i < 20; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        c.style.animationDelay = Math.random() * 0.5 + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 2500);
+    }
+}
+
+function resetData() {
+    if (confirm('هل أنت متأكد من مسح جميع البيانات؟')) {
+        localStorage.removeItem('islamicHabitApp');
+        location.reload();
+    }
+}
+
+function toggleNotifications(el) {
+    if (el.checked && 'Notification' in window) {
+        Notification.requestPermission().then(p => {
+            if (p === 'granted') showToast('الإشعارات مفعلة!');
+        });
+    }
+}
+
+// ===================== INIT =====================
+function init() {
+    loadState();
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('current-date').textContent = now.toLocaleDateString('ar-SA', options);
+    renderHomeHabits();
+    renderProfile();
+    // Update countdown every minute
+    setInterval(() => {
+        const now = new Date();
+        const maghrib = new Date(); maghrib.setHours(18, 42, 0);
+        if (now > maghrib) maghrib.setDate(maghrib.getDate() + 1);
+        const diff = maghrib - now;
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        document.getElementById('countdown').textContent = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
+    }, 60000);
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

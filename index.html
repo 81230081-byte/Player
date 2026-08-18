@@ -292,7 +292,7 @@ const habitsData = [
     { id: 'exercise', title: 'الرياضة', desc: '30 دقيقة', icon: 'fa-running', color: 'orange', xp: 10 }
 ];
 
-const athkarData = { /* بيانات الأذكار كما هي */
+const athkarData = {
     morning: [{ text: 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ...', source: 'مسلم', count: 1 }],
     evening: [{ text: 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ...', source: 'مسلم', count: 1 }],
     sleep: [{ text: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', source: 'البخاري', count: 1 }]
@@ -300,8 +300,8 @@ const athkarData = { /* بيانات الأذكار كما هي */
 
 // ===================== STATE =====================
 let state = {
-    userName: '', // تم إضافة اسم المستخدم
-    prayerTimes: null, // تم إضافة أوقات الصلاة
+    userName: '', 
+    prayerTimes: null, 
     prayerTimesDate: null,
     prayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
     habits: {},
@@ -312,7 +312,7 @@ let state = {
     lastDate: null
 };
 
-window.nextPrayerTarget = null; // متغير عام للعد التنازلي
+window.nextPrayerTarget = null; 
 
 function loadState() {
     const saved = localStorage.getItem('islamicHabitApp');
@@ -381,7 +381,6 @@ function saveUserName() {
         updateUserNameUI();
         closeModal();
         showToast('أهلاً بك يا ' + name + '!');
-        // بعد حفظ الاسم، نطلب الإذن بتحديد الموقع لأوقات الصلاة
         setTimeout(() => fetchPrayerTimes(), 1000);
     }
 }
@@ -398,41 +397,69 @@ function updateUserNameUI() {
 async function fetchPrayerTimes(forceUpdate = false) {
     const todayStr = new Date().toDateString();
     
-    // إذا كان لدينا الأوقات لليوم الحالي، لا داعي لجلبها مجدداً إلا إذا ضغط المستخدم على "تحديث"
+    // إذا كان لدينا الأوقات لليوم، لا داعي لإعادة الجلب
     if (state.prayerTimesDate === todayStr && state.prayerTimes && !forceUpdate) {
         updateNextPrayerUI();
         return;
     }
 
+    const timeDisplay = document.getElementById('next-prayer-time-display');
+    const nameDisplay = document.getElementById('next-prayer-name');
+    
+    if(forceUpdate) showToast('جاري تحديث الأوقات...');
+
+    // دالة مساعدة لجلب الصلاة من الـ API بناءً على الإحداثيات
+    const fetchFromAladhan = async (lat, lng) => {
+        try {
+            const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=4`);
+            const data = await res.json();
+            state.prayerTimes = data.data.timings;
+            state.prayerTimesDate = todayStr;
+            saveState();
+            updateNextPrayerUI();
+            if(forceUpdate) showToast('تم تحديث أوقات الصلاة بنجاح!');
+        } catch (e) {
+            timeDisplay.textContent = 'خطأ في الاتصال';
+            nameDisplay.textContent = '⚠️';
+        }
+    };
+
+    // الخطة ب (الذكية): جلب الموقع عن طريق الإنترنت (IP) بدون طلب صلاحيات
+    const fetchByIP = async () => {
+        try {
+            const ipRes = await fetch('https://ipapi.co/json/');
+            const ipData = await ipRes.json();
+            await fetchFromAladhan(ipData.latitude, ipData.longitude);
+        } catch (e) {
+            timeDisplay.textContent = 'تعذر التحديث';
+            nameDisplay.textContent = '⚠️';
+            timeDisplay.classList.replace('text-emerald-200', 'text-red-400');
+        }
+    };
+
+    // الخطة أ: محاولة استخدام الـ GPS أولاً
     if (navigator.geolocation) {
-        if(forceUpdate) showToast('جاري تحديد الموقع...');
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            try {
-                // استخدام API مجاني (Aladhan)
-                const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=4`);
-                const data = await res.json();
-                state.prayerTimes = data.data.timings;
-                state.prayerTimesDate = todayStr;
-                saveState();
-                updateNextPrayerUI();
-                if(forceUpdate) showToast('تم تحديث أوقات الصلاة بنجاح!');
-            } catch (e) {
-                if(forceUpdate) showToast('حدث خطأ في الاتصال بالشبكة');
-            }
-        }, (error) => {
-            if(forceUpdate) showToast('يرجى السماح بصلاحية الموقع للحصول على الأوقات بدقة');
-        });
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                // نجح في الحصول على الـ GPS
+                fetchFromAladhan(position.coords.latitude, position.coords.longitude);
+            },
+            (error) => {
+                // فشل أو تم رفض الـ GPS -> تشغيل الخطة ب
+                fetchByIP();
+            },
+            { timeout: 5000 } // انتظر 5 ثواني كحد أقصى، وإلا شغل الخطة ب فوراً
+        );
     } else {
-        if(forceUpdate) showToast('جهازك لا يدعم تحديد الموقع');
+        // المتصفح لا يدعم الـ GPS أصلاً -> تشغيل الخطة ب
+        fetchByIP();
     }
 }
 
 function updateNextPrayerUI() {
     if (!state.prayerTimes) return;
     
-    const times = state.prayerTimes; // Object contains "Fajr", "Dhuhr", etc.
+    const times = state.prayerTimes; 
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
@@ -447,7 +474,6 @@ function updateNextPrayerUI() {
     let nextPrayer = prayerOrder[0];
     let nextTimeMinutes = 24 * 60; 
 
-    // البحث عن أقرب صلاة
     for (let p of prayerOrder) {
         if(!times[p.name]) continue;
         let [h, m] = times[p.name].split(':').map(Number);
@@ -459,7 +485,6 @@ function updateNextPrayerUI() {
         }
     }
 
-    // إذا انتهت كل صلوات اليوم، فالصلاة القادمة هي الفجر غداً
     let isTomorrow = false;
     if (nextTimeMinutes === 24 * 60) {
         nextPrayer = prayerOrder[0];
@@ -468,7 +493,6 @@ function updateNextPrayerUI() {
         isTomorrow = true;
     }
 
-    // تحديث الشاشة
     document.getElementById('next-prayer-name').textContent = nextPrayer.ar;
     
     let nextH = Math.floor(nextTimeMinutes / 60);
@@ -477,14 +501,12 @@ function updateNextPrayerUI() {
     let displayH = nextH % 12 || 12;
     document.getElementById('next-prayer-time-display').textContent = `${displayH}:${nextM.toString().padStart(2,'0')} ${ampm}`;
 
-    // إعداد متغير العد التنازلي
     window.nextPrayerTarget = new Date();
     window.nextPrayerTarget.setHours(nextH, nextM, 0);
     if (isTomorrow) {
         window.nextPrayerTarget.setDate(window.nextPrayerTarget.getDate() + 1);
     }
     
-    // تفعيل تأثير النبض (Pulse) على الصلاة القادمة فقط
     document.querySelectorAll('.prayer-icon').forEach(el => {
         el.parentElement.classList.remove('opacity-50');
         const pulse = el.querySelector('.pulse-ring');
@@ -504,7 +526,6 @@ function updateCountdown() {
     const diff = window.nextPrayerTarget - now;
     
     if (diff <= 0) {
-        // حان وقت الصلاة! قم بتحديث الأوقات للصلاة التي تليها
         updateNextPrayerUI();
         return;
     }
@@ -514,7 +535,58 @@ function updateCountdown() {
     document.getElementById('countdown').textContent = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
 }
 
-// ===================== NAVIGATION & THEME (كما هي) =====================
+// ===================== SMART REMINDERS =====================
+let lastReminderMinute = -1;
+
+function checkSmartReminders() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    if (minutes === lastReminderMinute) return;
+
+    let reminderTitle = '';
+    let reminderBody = '';
+
+    if (hours === 9 && minutes === 0) {
+        reminderTitle = 'صلاة الضحى ☀️';
+        reminderBody = 'صلاة الأوابين.. ركعتان تكفيك صدقة عن كل مفصل.';
+    }
+    
+    if (hours === 16 && minutes === 30) {
+        const eveningDone = Object.values(state.athkar.evening).some(v => v > 0);
+        if (!eveningDone) {
+            reminderTitle = 'أذكار المساء 🌙';
+            reminderBody = 'لا تنس قراءة أذكار المساء، فهي حصنك الحصين.';
+        }
+    }
+
+    if (hours === 22 && minutes === 0) {
+        const allHabitsDone = habitsData.every(h => state.habits[h.id]?.completed);
+        if (!allHabitsDone) {
+            reminderTitle = 'عاداتك تنتظرك! 🔥';
+            reminderBody = 'لا تدع اليوم يمر دون إكمال عاداتك للحفاظ على شعلة الاستمرارية.';
+        }
+    }
+
+    if (reminderTitle !== '') {
+        sendNotification(reminderTitle, reminderBody);
+        lastReminderMinute = minutes;
+    }
+}
+
+function sendNotification(title, body) {
+    showToast(title + " - " + body);
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { 
+            body: body, 
+            icon: 'icons/icon-192x192.png',
+            vibrate: [200, 100, 200]
+        });
+    }
+}
+
+// ===================== NAVIGATION & THEME =====================
 function navigateTo(page, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
@@ -536,7 +608,7 @@ function toggleTheme() {
     }
 }
 
-// ===================== HOME & HABITS (كما هي) =====================
+// ===================== HOME & HABITS =====================
 function renderHomeHabits() {
     const container = document.getElementById('habits-list');
     const colors = { emerald: 'from-emerald-600 to-emerald-800', sky: 'from-sky-600 to-sky-800', indigo: 'from-indigo-600 to-indigo-800', violet: 'from-violet-600 to-violet-800', orange: 'from-orange-600 to-red-700' };
@@ -598,15 +670,27 @@ function renderProfile() {
     const done = Object.values(state.prayers).filter(Boolean).length + habitsData.filter(h => state.habits[h.id]?.completed).length;
     document.getElementById('stat-rate').textContent = Math.round(done / total * 100) + '%';
     
-    updateUserNameUI(); // تأكيد تحديث الاسم
+    updateUserNameUI(); 
 }
 
-// ===================== MODALS & UTILS (كما هي) =====================
-function openModal(type) { /* ... نفس الكود السابق للاختصار ... */ closeModal(); }
+// ===================== MODALS & UTILS =====================
+function openModal(type) { /* ... اختصار ... */ closeModal(); }
 function closeModal() { document.getElementById('modal-content').classList.remove('open'); setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300); }
 function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-function createConfetti() { /* ... */ }
-function resetData() { if (confirm('متأكد؟')) { localStorage.removeItem('islamicHabitApp'); location.reload(); } }
+function createConfetti() { 
+    const colors = ['#0d8b4a', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
+    for (let i = 0; i < 20; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        c.style.animationDelay = Math.random() * 0.5 + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 2500);
+    }
+}
+function resetData() { if (confirm('متأكد من مسح البيانات؟')) { localStorage.removeItem('islamicHabitApp'); location.reload(); } }
 function toggleNotifications(el) { /* ... */ }
 
 // ===================== INIT =====================
@@ -625,15 +709,13 @@ function init() {
     renderHomeHabits();
     renderProfile();
     
-    // 1. التحقق من الترحيب
     checkOnboarding();
     
-    // 2. محاولة جلب أوقات الصلاة الحقيقية في الخلفية
     fetchPrayerTimes();
     
-    // تحديث العد التنازلي كل دقيقة
     setInterval(() => {
         updateCountdown();
+        checkSmartReminders();
     }, 60000);
 }
 

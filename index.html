@@ -674,9 +674,59 @@ function renderProfile() {
 }
 
 // ===================== MODALS & UTILS =====================
-function openModal(type) { /* ... اختصار ... */ closeModal(); }
-function closeModal() { document.getElementById('modal-content').classList.remove('open'); setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300); }
-function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+function openModal(type) {
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    const body = document.getElementById('modal-body');
+    
+    let title = '';
+    let desc = '';
+    let actionHtml = '';
+    
+    if (type === 'wird') {
+        title = 'الورد اليومي 📖';
+        desc = 'هل أتممت قراءة وردك من القرآن الكريم لهذا اليوم؟';
+        actionHtml = `<button class="w-full py-4 rounded-xl bg-emerald-600 text-white font-bold haptic mb-3" onclick="toggleHabitHome('wird'); closeModal();">تم الإنجاز ✅</button>`;
+    } else if (type === 'athkar') {
+        title = 'الأذكار 📿';
+        desc = 'انتقل لصفحة الأذكار لقراءة أذكار الصباح والمساء.';
+        // ينقل المستخدم مباشرة لصفحة الأذكار في الشريط السفلي
+        actionHtml = `<button class="w-full py-4 rounded-xl bg-sky-600 text-white font-bold haptic" onclick="closeModal(); navigateTo('athkar', document.querySelectorAll('.nav-item')[2])">الذهاب للأذكار</button>`;
+    } else if (type === 'learn') {
+        title = 'تعلم العلم الشرعي 🎓';
+        desc = 'هل أتممت درسك اليوم؟ (١٥ دقيقة)';
+        actionHtml = `<button class="w-full py-4 rounded-xl bg-violet-600 text-white font-bold haptic mb-3" onclick="toggleHabitHome('learn'); closeModal();">تم الإنجاز ✅</button>`;
+    } else if (type === 'exercise') {
+        title = 'الرياضة 🏃‍♂️';
+        desc = 'هل مارست الرياضة اليوم؟ (٣٠ دقيقة)';
+        actionHtml = `<button class="w-full py-4 rounded-xl bg-orange-600 text-white font-bold haptic mb-3" onclick="toggleHabitHome('exercise'); closeModal();">تم الإنجاز ✅</button>`;
+    }
+
+    body.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-white text-2xl font-bold mb-2">${title}</h2>
+            <p class="text-white/60 text-sm mb-6">${desc}</p>
+            ${actionHtml}
+            ${type !== 'athkar' ? `<button class="w-full py-4 rounded-xl bg-white/10 text-white font-bold haptic" onclick="closeModal()">ليس بعد</button>` : ''}
+        </div>
+    `;
+    
+    overlay.style.display = 'block';
+    setTimeout(() => content.classList.add('open'), 10);
+}
+
+function closeModal() {
+    document.getElementById('modal-content').classList.remove('open');
+    setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300);
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
 function createConfetti() { 
     const colors = ['#0d8b4a', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
     for (let i = 0; i < 20; i++) {
@@ -690,8 +740,33 @@ function createConfetti() {
         setTimeout(() => c.remove(), 2500);
     }
 }
-function resetData() { if (confirm('متأكد من مسح البيانات؟')) { localStorage.removeItem('islamicHabitApp'); location.reload(); } }
-function toggleNotifications(el) { /* ... */ }
+
+function resetData() {
+    if (confirm('هل أنت متأكد من مسح جميع بياناتك وإنجازاتك؟')) {
+        localStorage.removeItem('islamicHabitApp');
+        location.reload();
+    }
+}
+
+function toggleNotifications(el) {
+    if (el.checked) {
+        if ('Notification' in window) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    showToast('تم تفعيل الإشعارات بنجاح 🔔');
+                } else {
+                    el.checked = false;
+                    showToast('تم رفض صلاحية الإشعارات 🔕');
+                }
+            });
+        } else {
+            el.checked = false;
+            showToast('متصفحك الحالي لا يدعم الإشعارات');
+        }
+    } else {
+        showToast('تم إيقاف الإشعارات 🔕');
+    }
+}
 
 // ===================== INIT =====================
 function init() {

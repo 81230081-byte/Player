@@ -52,7 +52,7 @@ input:checked + .slider:before { transform: translateX(-22px); }
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: rgba(13,139,74,0.95); color: white; padding: 12px 24px; border-radius: 16px; font-size: 14px; z-index: 300; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); backdrop-filter: blur(10px); }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; display: none; }
-.modal-content { position: fixed; bottom: 0; left: 0; right: 0; background: #0d1f0d; border-radius: 30px 30px 0 0; padding: 24px; z-index: 201; max-height: 80vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
+.modal-content { position: fixed; bottom: 0; left: 0; right: 0; background: #0d1f0d; border-radius: 30px 30px 0 0; padding: 24px; z-index: 201; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
 .modal-content.open { transform: translateY(0); }
 .progress-ring-circle { transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 .haptic:active { transform: scale(0.96); }
@@ -164,7 +164,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
 
     <div class="flex gap-3 mb-5 overflow-x-auto hide-scroll">
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('wird')"><i class="fas fa-book-open"></i> الورد</button>
-        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-sky-600/30 border border-sky-500/30 text-sky-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('athkar')"><i class="fas fa-sun"></i> الأذكار</button>
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-sky-600/30 border border-sky-500/30 text-sky-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('athkar_morning')"><i class="fas fa-sun"></i> الأذكار</button>
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-violet-600/30 border border-violet-500/30 text-violet-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('learn')"><i class="fas fa-graduation-cap"></i> تعلم</button>
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-orange-600/30 border border-orange-500/30 text-orange-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('exercise')"><i class="fas fa-running"></i> رياضة</button>
     </div>
@@ -184,12 +184,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         <h1 class="text-white text-2xl font-bold">عاداتي</h1>
         <button class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white haptic" onclick="showToast('قريباً')"><i class="fas fa-plus"></i></button>
     </div>
-    <div class="flex gap-2 mb-5 overflow-x-auto hide-scroll pb-2">
-        <button class="px-4 py-2 rounded-full text-sm font-medium bg-emerald-600 text-white shadow-lg shadow-emerald-500/30">الكل</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium text-white/60 bg-white/5">روحانية</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium text-white/60 bg-white/5">صحة</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium text-white/60 bg-white/5">تعلم</button>
-    </div>
     <div class="glass-card p-4 mb-5">
         <h3 class="text-white font-semibold mb-3 text-sm">معدل الإنجاز (آخر ٧ أيام)</h3>
         <canvas id="habitsChart" height="150"></canvas>
@@ -198,9 +192,14 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
 </div>
 
 <div id="page-athkar" class="page">
-    <div class="mb-6">
-        <h1 class="text-white text-2xl font-bold">الأذكار</h1>
-        <p class="text-white/50 text-sm">أذكار الصباح والمساء</p>
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-white text-2xl font-bold">الأذكار</h1>
+            <p class="text-white/50 text-sm">أذكار الصباح والمساء</p>
+        </div>
+        <button class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white haptic transition-colors" onclick="navigateTo('home', document.querySelectorAll('.nav-item')[0])">
+            <i class="fas fa-arrow-right"></i>
+        </button>
     </div>
     <div class="flex gap-2 mb-5">
         <button class="flex-1 py-3 rounded-2xl bg-emerald-600 text-white font-medium text-sm haptic" onclick="switchAthkarTab('morning', this)"><i class="fas fa-sun mr-1"></i> الصباح</button>
@@ -244,15 +243,14 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     <div class="grid grid-cols-2 gap-3 mb-5">
         <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-emerald-400 mb-1" id="stat-streak">0</div><p class="text-white/50 text-xs">يوم متتالي</p></div>
         <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-amber-400 mb-1" id="stat-rate">0%</div><p class="text-white/50 text-xs">معدل الإنجاز</p></div>
-        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-sky-400 mb-1">٧</div><p class="text-white/50 text-xs">عادة نشطة</p></div>
-        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-violet-400 mb-1" id="stat-xp">0</div><p class="text-white/50 text-xs">نقطة خبرة</p></div>
     </div>
     <h3 class="text-white font-bold mb-3">حديقة الأعمال 🌱</h3>
     <div class="glass-card p-4 mb-5">
         <p class="text-white/50 text-xs mb-3 text-center">كل يوم من الاستمرارية يزرع زهرة</p>
         <div class="grid grid-cols-7 gap-2" id="garden-grid"></div>
     </div>
-    <h3 class="text-white font-bold mb-3">الإعدادات</h3>
+    
+    <h3 class="text-white font-bold mb-3" id="settings-section">الإعدادات ⚙️</h3>
     <div class="space-y-2 mb-5">
         <button class="w-full glass-card p-4 flex items-center justify-between text-right" onclick="fetchPrayerTimes(true)">
             <div class="flex items-center gap-3"><i class="fas fa-location-dot text-emerald-400"></i><span class="text-white text-sm">تحديث موقعي (لأوقات الصلاة)</span></div>
@@ -261,6 +259,14 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
             <div class="flex items-center gap-3"><i class="fas fa-bell text-emerald-400"></i><span class="text-white text-sm">الإشعارات</span></div>
             <label class="switch"><input type="checkbox" checked onchange="toggleNotifications(this)"><span class="slider"></span></label>
         </div>
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3"><i class="fas fa-volume-up text-emerald-400"></i><span class="text-white text-sm">الصوت</span></div>
+            <label class="switch"><input type="checkbox" checked onchange="showToast(this.checked ? 'تم تفعيل الأصوات 🔊' : 'تم كتم الأصوات 🔇')"><span class="slider"></span></label>
+        </div>
+        <button class="w-full glass-card p-4 flex items-center justify-between text-right" onclick="showToast('سيتم إضافة المزيد من طرق الحساب قريباً')">
+            <div class="flex items-center gap-3"><i class="fas fa-mosque text-emerald-400"></i><span class="text-white text-sm">طريقة الحساب</span></div>
+            <span class="text-white/50 text-xs">رابطة العالم الإسلامي</span>
+        </button>
     </div>
     <button class="w-full py-3 rounded-2xl bg-red-500/20 text-red-400 text-sm font-medium mb-8" onclick="resetData()"><i class="fas fa-trash-alt mr-2"></i> إعادة ضبط البيانات</button>
 </div>
@@ -282,20 +288,44 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
 </div>
 
 <script>
-
 // ===================== DATA =====================
+// إضافة خاصية تتبع الأهداف (track) للعادات التي تحتاج أهداف مرنة
 const habitsData = [
-    { id: 'wird', title: 'الورد اليومي', desc: 'جزء من القرآن', icon: 'fa-book-open', color: 'emerald', xp: 15 },
+    { id: 'wird', title: 'الورد اليومي', desc: 'تتبع وحفظ صفحاتك', icon: 'fa-book-open', color: 'emerald', xp: 15 },
     { id: 'athkar_morning', title: 'أذكار الصباح', desc: 'بعد صلاة الفجر', icon: 'fa-sun', color: 'sky', xp: 20 },
     { id: 'athkar_evening', title: 'أذكار المساء', desc: 'بعد صلاة العصر', icon: 'fa-moon', color: 'indigo', xp: 20 },
-    { id: 'learn', title: 'تعلم العلم الشرعي', desc: 'درس 15 دقيقة', icon: 'fa-graduation-cap', color: 'violet', xp: 15 },
-    { id: 'exercise', title: 'الرياضة', desc: '30 دقيقة', icon: 'fa-running', color: 'orange', xp: 10 }
+    { id: 'learn', title: 'تعلم العلم الشرعي', desc: 'وقت التعلم', icon: 'fa-graduation-cap', color: 'violet', xp: 15, track: { unit: 'دقيقة', target: 15, step: 5 } },
+    { id: 'exercise', title: 'الرياضة', desc: 'وقت التمرين', icon: 'fa-running', color: 'orange', xp: 10, track: { unit: 'دقيقة', target: 30, step: 5 } }
 ];
 
+// الأذكار الكاملة الصحيحة
 const athkarData = {
-    morning: [{ text: 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ...', source: 'مسلم', count: 1 }],
-    evening: [{ text: 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ...', source: 'مسلم', count: 1 }],
-    sleep: [{ text: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', source: 'البخاري', count: 1 }]
+    morning: [
+        { text: 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', source: 'مسلم', count: 1 },
+        { text: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', source: 'البخاري (سيد الاستغفار)', count: 1 },
+        { text: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا', source: 'أبو داود', count: 3 },
+        { text: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ', source: 'الترمذي', count: 3 },
+        { text: 'حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ', source: 'أبو داود', count: 7 },
+        { text: 'قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾', source: 'سورة الإخلاص', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِن شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾', source: 'سورة الفلق', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَهِ النَّاسِ ﴿٣﴾ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾', source: 'سورة الناس', count: 3 }
+    ],
+    evening: [
+        { text: 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', source: 'مسلم', count: 1 },
+        { text: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', source: 'البخاري (سيد الاستغفار)', count: 1 },
+        { text: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا', source: 'أبو داود', count: 3 },
+        { text: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ', source: 'الترمذي', count: 3 },
+        { text: 'حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ', source: 'أبو داود', count: 7 },
+        { text: 'قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾', source: 'سورة الإخلاص', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِن شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾', source: 'سورة الفلق', count: 3 },
+        { text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَهِ النَّاسِ ﴿٣﴾ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾', source: 'سورة الناس', count: 3 }
+    ],
+    sleep: [
+        { text: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', source: 'البخاري', count: 1 },
+        { text: 'سُبْحَانَ اللَّهِ (٣٣)، الْحَمْدُ لِلَّهِ (٣٣)، اللَّهُ أَكْبَرُ (٣٤)', source: 'البخاري ومسلم', count: 1 },
+        { text: 'بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ', source: 'البخاري ومسلم', count: 1 },
+        { text: 'اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ', source: 'أبو داود', count: 3 }
+    ]
 };
 
 // ===================== STATE =====================
@@ -306,6 +336,8 @@ let state = {
     prayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
     habits: {},
     athkar: { morning: {}, evening: {}, sleep: {} },
+    wird: { dailyGoal: 5, lastPage: 1 }, // حالة الورد
+    habitProgress: {}, // حالة تتبع أهداف العادات
     streak: 0,
     xp: 0,
     garden: [],
@@ -320,6 +352,8 @@ function loadState() {
         state = JSON.parse(saved);
         if(!state.userName) state.userName = '';
         if(!state.prayerTimes) state.prayerTimes = null;
+        if(!state.wird) state.wird = { dailyGoal: 5, lastPage: 1 };
+        if(!state.habitProgress) state.habitProgress = {};
     } else {
         habitsData.forEach(h => state.habits[h.id] = { completed: false, streak: 0 });
         ['morning', 'evening', 'sleep'].forEach(type => {
@@ -343,6 +377,12 @@ function checkNewDay() {
             state.habits[h.id].completed = false;
         });
         Object.keys(state.prayers).forEach(k => state.prayers[k] = false);
+        
+        // إعادة تصفير أهداف العادات اليومية
+        if (state.habitProgress) {
+            Object.keys(state.habitProgress).forEach(k => state.habitProgress[k].current = 0);
+        }
+
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         if (state.lastDate === yesterday.toDateString()) { state.streak++; state.garden.push(true); } 
@@ -396,19 +436,15 @@ function updateUserNameUI() {
 // ===================== DYNAMIC PRAYER TIMES =====================
 async function fetchPrayerTimes(forceUpdate = false) {
     const todayStr = new Date().toDateString();
-    
-    // إذا كان لدينا الأوقات لليوم، لا داعي لإعادة الجلب
     if (state.prayerTimesDate === todayStr && state.prayerTimes && !forceUpdate) {
         updateNextPrayerUI();
         return;
     }
-
     const timeDisplay = document.getElementById('next-prayer-time-display');
     const nameDisplay = document.getElementById('next-prayer-name');
     
     if(forceUpdate) showToast('جاري تحديث الأوقات...');
 
-    // دالة مساعدة لجلب الصلاة من الـ API بناءً على الإحداثيات
     const fetchFromAladhan = async (lat, lng) => {
         try {
             const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=4`);
@@ -424,7 +460,6 @@ async function fetchPrayerTimes(forceUpdate = false) {
         }
     };
 
-    // الخطة ب (الذكية): جلب الموقع عن طريق الإنترنت (IP) بدون طلب صلاحيات
     const fetchByIP = async () => {
         try {
             const ipRes = await fetch('https://ipapi.co/json/');
@@ -437,32 +472,22 @@ async function fetchPrayerTimes(forceUpdate = false) {
         }
     };
 
-    // الخطة أ: محاولة استخدام الـ GPS أولاً
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                // نجح في الحصول على الـ GPS
-                fetchFromAladhan(position.coords.latitude, position.coords.longitude);
-            },
-            (error) => {
-                // فشل أو تم رفض الـ GPS -> تشغيل الخطة ب
-                fetchByIP();
-            },
-            { timeout: 5000 } // انتظر 5 ثواني كحد أقصى، وإلا شغل الخطة ب فوراً
+            (position) => fetchFromAladhan(position.coords.latitude, position.coords.longitude),
+            (error) => fetchByIP(),
+            { timeout: 5000 }
         );
     } else {
-        // المتصفح لا يدعم الـ GPS أصلاً -> تشغيل الخطة ب
         fetchByIP();
     }
 }
 
 function updateNextPrayerUI() {
     if (!state.prayerTimes) return;
-    
     const times = state.prayerTimes; 
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
     const prayerOrder = [
         { id: 'fajr', name: 'Fajr', ar: 'الفجر' },
         { id: 'dhuhr', name: 'Dhuhr', ar: 'الظهر' },
@@ -473,18 +498,12 @@ function updateNextPrayerUI() {
 
     let nextPrayer = prayerOrder[0];
     let nextTimeMinutes = 24 * 60; 
-
     for (let p of prayerOrder) {
         if(!times[p.name]) continue;
         let [h, m] = times[p.name].split(':').map(Number);
         let pmins = h * 60 + m;
-        if (pmins > currentMinutes) {
-            nextPrayer = p;
-            nextTimeMinutes = pmins;
-            break;
-        }
+        if (pmins > currentMinutes) { nextPrayer = p; nextTimeMinutes = pmins; break; }
     }
-
     let isTomorrow = false;
     if (nextTimeMinutes === 24 * 60) {
         nextPrayer = prayerOrder[0];
@@ -494,7 +513,6 @@ function updateNextPrayerUI() {
     }
 
     document.getElementById('next-prayer-name').textContent = nextPrayer.ar;
-    
     let nextH = Math.floor(nextTimeMinutes / 60);
     let nextM = nextTimeMinutes % 60;
     let ampm = nextH >= 12 ? 'م' : 'ص';
@@ -503,16 +521,13 @@ function updateNextPrayerUI() {
 
     window.nextPrayerTarget = new Date();
     window.nextPrayerTarget.setHours(nextH, nextM, 0);
-    if (isTomorrow) {
-        window.nextPrayerTarget.setDate(window.nextPrayerTarget.getDate() + 1);
-    }
+    if (isTomorrow) window.nextPrayerTarget.setDate(window.nextPrayerTarget.getDate() + 1);
     
     document.querySelectorAll('.prayer-icon').forEach(el => {
         el.parentElement.classList.remove('opacity-50');
         const pulse = el.querySelector('.pulse-ring');
         if(pulse) pulse.remove();
     });
-    
     const nextIconDiv = document.getElementById('prayer-' + nextPrayer.id);
     if(nextIconDiv && !state.prayers[nextPrayer.id]) {
         nextIconDiv.parentElement.classList.add('opacity-50');
@@ -524,66 +539,10 @@ function updateCountdown() {
     if (!window.nextPrayerTarget) return;
     const now = new Date();
     const diff = window.nextPrayerTarget - now;
-    
-    if (diff <= 0) {
-        updateNextPrayerUI();
-        return;
-    }
-    
+    if (diff <= 0) { updateNextPrayerUI(); return; }
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     document.getElementById('countdown').textContent = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
-}
-
-// ===================== SMART REMINDERS =====================
-let lastReminderMinute = -1;
-
-function checkSmartReminders() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-
-    if (minutes === lastReminderMinute) return;
-
-    let reminderTitle = '';
-    let reminderBody = '';
-
-    if (hours === 9 && minutes === 0) {
-        reminderTitle = 'صلاة الضحى ☀️';
-        reminderBody = 'صلاة الأوابين.. ركعتان تكفيك صدقة عن كل مفصل.';
-    }
-    
-    if (hours === 16 && minutes === 30) {
-        const eveningDone = Object.values(state.athkar.evening).some(v => v > 0);
-        if (!eveningDone) {
-            reminderTitle = 'أذكار المساء 🌙';
-            reminderBody = 'لا تنس قراءة أذكار المساء، فهي حصنك الحصين.';
-        }
-    }
-
-    if (hours === 22 && minutes === 0) {
-        const allHabitsDone = habitsData.every(h => state.habits[h.id]?.completed);
-        if (!allHabitsDone) {
-            reminderTitle = 'عاداتك تنتظرك! 🔥';
-            reminderBody = 'لا تدع اليوم يمر دون إكمال عاداتك للحفاظ على شعلة الاستمرارية.';
-        }
-    }
-
-    if (reminderTitle !== '') {
-        sendNotification(reminderTitle, reminderBody);
-        lastReminderMinute = minutes;
-    }
-}
-
-function sendNotification(title, body) {
-    showToast(title + " - " + body);
-    if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(title, { 
-            body: body, 
-            icon: 'icons/icon-192x192.png',
-            vibrate: [200, 100, 200]
-        });
-    }
 }
 
 // ===================== NAVIGATION & THEME =====================
@@ -614,7 +573,7 @@ function renderHomeHabits() {
     const colors = { emerald: 'from-emerald-600 to-emerald-800', sky: 'from-sky-600 to-sky-800', indigo: 'from-indigo-600 to-indigo-800', violet: 'from-violet-600 to-violet-800', orange: 'from-orange-600 to-red-700' };
     container.innerHTML = habitsData.map(h => {
         const completed = state.habits[h.id]?.completed;
-        return `<div class="glass-card p-4 flex items-center gap-4 cursor-pointer haptic" onclick="toggleHabitHome('${h.id}')">
+        return `<div class="glass-card p-4 flex items-center gap-4 cursor-pointer haptic" onclick="openModal('${h.id}')">
             <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${colors[h.color]} flex items-center justify-center text-white text-xl habit-ring ${completed ? 'completed' : ''}"><i class="fas ${h.icon}"></i></div>
             <div class="flex-1"><h4 class="text-white font-semibold">${h.title}</h4><p class="text-white/50 text-xs">${h.desc}</p>${state.habits[h.id]?.streak > 0 ? `<span class="text-amber-400 text-xs">⚡ ${state.habits[h.id].streak} أيام</span>` : ''}</div>
             <div class="check-anim ${completed ? 'checked' : ''}"><i class="fas fa-check text-white check-icon"></i></div>
@@ -660,6 +619,39 @@ function updateProgress() {
     document.getElementById('streak-days').textContent = state.streak;
 }
 
+// ===================== ATHKAR =====================
+let currentAthkarType = 'morning';
+function switchAthkarTab(type, btn) {
+    currentAthkarType = type;
+    document.querySelectorAll('#page-athkar .flex-1').forEach(b => {
+        b.classList.remove('bg-emerald-600', 'text-white');
+        b.classList.add('bg-white/5', 'text-white/60');
+    });
+    btn.classList.remove('bg-white/5', 'text-white/60');
+    btn.classList.add('bg-emerald-600', 'text-white');
+    renderAthkar(type);
+}
+
+function renderAthkar(type) {
+    const list = document.getElementById('athkar-list');
+    const data = athkarData[type];
+    const progress = Object.values(state.athkar[type]).filter((v, i) => v >= data[i].count).length;
+    document.getElementById('athkar-progress-text').textContent = progress + '/' + data.length;
+    document.getElementById('athkar-progress-bar').style.width = (progress / data.length * 100) + '%';
+    list.innerHTML = data.map((a, i) => {
+        const current = state.athkar[type][i] || 0;
+        const done = current >= a.count;
+        return `<div class="glass-card p-5 ${done ? 'opacity-60' : ''}"><div class="flex justify-between items-start mb-3"><span class="text-emerald-400 text-xs font-medium bg-emerald-500/10 px-3 py-1 rounded-full">${a.count} ${a.count === 1 ? 'مرة' : 'مرات'}</span>${done ? '<span class="text-emerald-400 text-sm"><i class="fas fa-check-circle"></i></span>' : ''}</span></div><p class="quran-font text-white text-center mb-4">${a.text}</p><div class="flex justify-between items-center pt-3 border-t border-white/10"><span class="text-white/40 text-xs">${a.source}</span><div class="flex items-center gap-3"><span class="text-white/60 text-sm">${current}/${a.count}</span><button class="w-10 h-10 rounded-full ${done ? 'bg-emerald-800' : 'bg-emerald-600'} flex items-center justify-center text-white haptic" onclick="incrementAthkar('${type}', ${i}, ${a.count})" ${done ? 'disabled' : ''}><i class="fas fa-plus"></i></button></div></div></div>`;
+    }).join('');
+}
+
+function incrementAthkar(type, index, max) {
+    if (!state.athkar[type][index]) state.athkar[type][index] = 0;
+    state.athkar[type][index]++;
+    if (state.athkar[type][index] >= max) { state.xp += 5; showToast('ذكر مكتمل! +5 نقاط'); }
+    saveState(); renderAthkar(type);
+}
+
 // ===================== PROFILE =====================
 function renderProfile() {
     document.getElementById('stat-streak').textContent = state.streak;
@@ -669,64 +661,151 @@ function renderProfile() {
     const total = 5 + habitsData.length;
     const done = Object.values(state.prayers).filter(Boolean).length + habitsData.filter(h => state.habits[h.id]?.completed).length;
     document.getElementById('stat-rate').textContent = Math.round(done / total * 100) + '%';
-    
     updateUserNameUI(); 
 }
 
-// ===================== MODALS & UTILS =====================
+// ===================== MODALS, WIRD & HABIT TRACKER =====================
 function openModal(type) {
     const overlay = document.getElementById('modal-overlay');
     const content = document.getElementById('modal-content');
     const body = document.getElementById('modal-body');
-    
-    let title = '';
-    let desc = '';
+    const habitConfig = habitsData.find(h => h.id === type);
+
     let actionHtml = '';
-    
+
+    // 1. نظام الورد الذكي
     if (type === 'wird') {
-        title = 'الورد اليومي 📖';
-        desc = 'هل أتممت قراءة وردك من القرآن الكريم لهذا اليوم؟';
-        actionHtml = `<button class="w-full py-4 rounded-xl bg-emerald-600 text-white font-bold haptic mb-3" onclick="toggleHabitHome('wird'); closeModal();">تم الإنجاز ✅</button>`;
-    } else if (type === 'athkar') {
-        title = 'الأذكار 📿';
-        desc = 'انتقل لصفحة الأذكار لقراءة أذكار الصباح والمساء.';
-        // ينقل المستخدم مباشرة لصفحة الأذكار في الشريط السفلي
-        actionHtml = `<button class="w-full py-4 rounded-xl bg-sky-600 text-white font-bold haptic" onclick="closeModal(); navigateTo('athkar', document.querySelectorAll('.nav-item')[2])">الذهاب للأذكار</button>`;
-    } else if (type === 'learn') {
-        title = 'تعلم العلم الشرعي 🎓';
-        desc = 'هل أتممت درسك اليوم؟ (١٥ دقيقة)';
-        actionHtml = `<button class="w-full py-4 rounded-xl bg-violet-600 text-white font-bold haptic mb-3" onclick="toggleHabitHome('learn'); closeModal();">تم الإنجاز ✅</button>`;
-    } else if (type === 'exercise') {
-        title = 'الرياضة 🏃‍♂️';
-        desc = 'هل مارست الرياضة اليوم؟ (٣٠ دقيقة)';
-        actionHtml = `<button class="w-full py-4 rounded-xl bg-orange-600 text-white font-bold haptic mb-3" onclick="toggleHabitHome('exercise'); closeModal();">تم الإنجاز ✅</button>`;
+        actionHtml = `
+            <div class="text-center">
+                <h2 class="text-white text-2xl font-bold mb-4">الورد اليومي 📖</h2>
+                <div class="glass-card p-4 mb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-white/60 text-sm">هدفك اليومي (صفحة)</span>
+                        <div class="flex items-center gap-3">
+                            <button class="w-8 h-8 rounded bg-white/10 text-white" onclick="changeWirdSetting('dailyGoal', -1)">-</button>
+                            <span class="text-xl font-bold text-white w-8 text-center" id="wird-goal-display">${state.wird.dailyGoal}</span>
+                            <button class="w-8 h-8 rounded bg-white/10 text-white" onclick="changeWirdSetting('dailyGoal', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-4 pt-4 border-t border-white/10">
+                        <span class="text-white/60 text-sm">تقف عند صفحة</span>
+                        <div class="flex items-center gap-3">
+                            <button class="w-8 h-8 rounded bg-white/10 text-white" onclick="changeWirdSetting('lastPage', -1)">-</button>
+                            <span class="text-xl font-bold text-emerald-400 w-12 text-center" id="wird-page-display">${state.wird.lastPage}</span>
+                            <button class="w-8 h-8 rounded bg-white/10 text-white" onclick="changeWirdSetting('lastPage', 1)">+</button>
+                        </div>
+                    </div>
+                    <button class="w-full py-3 rounded-xl bg-white/10 text-white font-medium mb-2 haptic flex items-center justify-center gap-2" onclick="window.open('https://quran.com/page/' + state.wird.lastPage, '_blank')">
+                        <i class="fas fa-external-link-alt"></i> افتح المصحف للقراءة
+                    </button>
+                </div>
+                <button class="w-full py-4 rounded-xl bg-emerald-600 text-white font-bold haptic" onclick="completeWirdHabit()">أتممت وردي اليوم ✅</button>
+            </div>
+        `;
+    } 
+    // 2. الانتقال للأذكار
+    else if (type === 'athkar' || type.startsWith('athkar')) {
+        let tab = type.split('_')[1] || 'morning';
+        actionHtml = `
+            <div class="text-center">
+                <h2 class="text-white text-2xl font-bold mb-2">الأذكار 📿</h2>
+                <p class="text-white/60 text-sm mb-6">انتقل لصفحة الأذكار للقراءة والتسبيح.</p>
+                <button class="w-full py-4 rounded-xl bg-sky-600 text-white font-bold haptic" onclick="closeModal(); navigateTo('athkar', document.querySelectorAll('.nav-item')[2]); switchAthkarTab('${tab}', document.querySelector('#page-athkar button'));">الذهاب للأذكار</button>
+            </div>
+        `;
+    } 
+    // 3. نظام تتبع أهداف العادات (مثل الرياضة والتعلم)
+    else if (habitConfig && habitConfig.track) {
+        if (!state.habitProgress[type]) state.habitProgress[type] = { current: 0 };
+        let progress = state.habitProgress[type].current;
+        let track = habitConfig.track;
+
+        actionHtml = `
+            <div class="text-center">
+                <h2 class="text-white text-2xl font-bold mb-2">${habitConfig.title} <i class="fas ${habitConfig.icon}"></i></h2>
+                <div class="glass-card p-4 mb-4 text-center">
+                    <span class="text-white/60 text-sm">إنجاز اليوم (${track.unit})</span>
+                    <div class="flex justify-center items-center gap-4 my-4">
+                        <button class="w-10 h-10 rounded-full bg-white/10 text-white haptic" onclick="changeHabitProgress('${type}', -${track.step})">-${track.step}</button>
+                        <span class="text-3xl font-bold text-${habitConfig.color}-400 w-16" id="prog-current-${type}">${progress}</span>
+                        <button class="w-10 h-10 rounded-full bg-white/10 text-white haptic" onclick="changeHabitProgress('${type}', ${track.step})">+${track.step}</button>
+                    </div>
+                    <div class="h-2 bg-white/10 rounded-full overflow-hidden mx-4 mb-2">
+                        <div class="h-full bg-${habitConfig.color}-500 rounded-full transition-all" style="width: ${Math.min(100, (progress / track.target)*100)}%" id="prog-bar-${type}"></div>
+                    </div>
+                    <span class="text-white/40 text-xs">الهدف: ${track.target} ${track.unit}</span>
+                </div>
+                <button class="w-full py-4 rounded-xl bg-${habitConfig.color}-600 text-white font-bold haptic" onclick="confirmHabitProgress('${type}', ${track.target})">حفظ الإنجاز</button>
+            </div>
+        `;
+    } 
+    // 4. العادات البسيطة المتبقية (تم/لم يتم)
+    else if (habitConfig) {
+        actionHtml = `
+            <div class="text-center">
+                <h2 class="text-white text-2xl font-bold mb-2">${habitConfig.title} <i class="fas ${habitConfig.icon}"></i></h2>
+                <p class="text-white/60 text-sm mb-6">هل أتممت هذه العادة؟</p>
+                <button class="w-full py-4 rounded-xl bg-${habitConfig.color}-600 text-white font-bold haptic mb-3" onclick="toggleHabitHome('${type}'); closeModal();">أنجزت ✅</button>
+                <button class="w-full py-4 rounded-xl bg-white/10 text-white font-bold haptic" onclick="closeModal()">ليس بعد</button>
+            </div>
+        `;
     }
 
-    body.innerHTML = `
-        <div class="text-center">
-            <h2 class="text-white text-2xl font-bold mb-2">${title}</h2>
-            <p class="text-white/60 text-sm mb-6">${desc}</p>
-            ${actionHtml}
-            ${type !== 'athkar' ? `<button class="w-full py-4 rounded-xl bg-white/10 text-white font-bold haptic" onclick="closeModal()">ليس بعد</button>` : ''}
-        </div>
-    `;
-    
+    body.innerHTML = actionHtml;
     overlay.style.display = 'block';
     setTimeout(() => content.classList.add('open'), 10);
 }
 
-function closeModal() {
-    document.getElementById('modal-content').classList.remove('open');
-    setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300);
+// تغيير إعدادات الورد (الهدف أو الصفحة الحالية)
+window.changeWirdSetting = function(setting, amount) {
+    state.wird[setting] = Math.max(1, state.wird[setting] + amount);
+    if (setting === 'lastPage' && state.wird[setting] > 604) state.wird[setting] = 604;
+    document.getElementById(setting === 'lastPage' ? 'wird-page-display' : 'wird-goal-display').textContent = state.wird[setting];
+    saveState();
 }
 
-function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+// تأكيد قراءة الورد
+window.completeWirdHabit = function() {
+    if (!state.habits['wird']?.completed) {
+        // تحديث رقم الصفحة لليوم التالي تلقائياً!
+        state.wird.lastPage = Math.min(604, state.wird.lastPage + state.wird.dailyGoal);
+        toggleHabitHome('wird'); // وضع علامة صح وإعطاء نقاط
+    } else {
+        showToast('لقد أتممت وردك مسبقاً اليوم! 👏');
+    }
+    saveState();
+    closeModal();
 }
 
+// تغيير مؤشر الهدف للعادات
+window.changeHabitProgress = function(id, amount) {
+    let habitConfig = habitsData.find(h => h.id === id);
+    let current = state.habitProgress[id].current;
+    current = Math.max(0, current + amount);
+    state.habitProgress[id].current = current;
+    
+    document.getElementById(`prog-current-${id}`).textContent = current;
+    let percent = Math.min(100, (current / habitConfig.track.target) * 100);
+    document.getElementById(`prog-bar-${id}`).style.width = percent + '%';
+    saveState();
+};
+
+// حفظ إنجاز الهدف للعادات
+window.confirmHabitProgress = function(id, target) {
+    let current = state.habitProgress[id].current;
+    if (current >= target && !state.habits[id].completed) {
+        toggleHabitHome(id); // أكمل العادة
+    } else if (current < target && state.habits[id].completed) {
+        toggleHabitHome(id); // تراجع عن الإكمال
+    } else {
+        showToast('تم حفظ تقدمك!');
+        renderHomeHabits();
+    }
+    closeModal();
+}
+
+function closeModal() { document.getElementById('modal-content').classList.remove('open'); setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300); }
+function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
 function createConfetti() { 
     const colors = ['#0d8b4a', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
     for (let i = 0; i < 20; i++) {
@@ -740,32 +819,14 @@ function createConfetti() {
         setTimeout(() => c.remove(), 2500);
     }
 }
-
-function resetData() {
-    if (confirm('هل أنت متأكد من مسح جميع بياناتك وإنجازاتك؟')) {
-        localStorage.removeItem('islamicHabitApp');
-        location.reload();
-    }
-}
-
+function resetData() { if (confirm('هل أنت متأكد من مسح جميع بياناتك وإنجازاتك؟')) { localStorage.removeItem('islamicHabitApp'); location.reload(); } }
 function toggleNotifications(el) {
-    if (el.checked) {
-        if ('Notification' in window) {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    showToast('تم تفعيل الإشعارات بنجاح 🔔');
-                } else {
-                    el.checked = false;
-                    showToast('تم رفض صلاحية الإشعارات 🔕');
-                }
-            });
-        } else {
-            el.checked = false;
-            showToast('متصفحك الحالي لا يدعم الإشعارات');
-        }
-    } else {
-        showToast('تم إيقاف الإشعارات 🔕');
-    }
+    if (el.checked && 'Notification' in window) {
+        Notification.requestPermission().then(p => {
+            if (p === 'granted') showToast('تم تفعيل الإشعارات 🔔');
+            else { el.checked = false; showToast('رفضت صلاحية الإشعارات 🔕'); }
+        });
+    } else if (!el.checked) showToast('تم إيقاف الإشعارات 🔕');
 }
 
 // ===================== INIT =====================
@@ -785,12 +846,10 @@ function init() {
     renderProfile();
     
     checkOnboarding();
-    
     fetchPrayerTimes();
     
     setInterval(() => {
         updateCountdown();
-        checkSmartReminders();
     }, 60000);
 }
 

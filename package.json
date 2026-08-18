@@ -1,0 +1,17 @@
+{
+    "name": "islamic-habits-pro",
+    "version": "2.0.0",
+    "description": "تطبيق تتبع العادات الإسلامية الاحترافي",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "vite": "^5.0.0"
+    },
+    "keywords": ["islamic", "habits", "prayer", "athkar", "pwa"],
+    "author": "عاداتي Team",
+    "license": "MIT"
+}

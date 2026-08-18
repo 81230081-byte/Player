@@ -1,170 +1,328 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#07150d">
-<meta name="description" content="عاداتي 2.0 — رفيقك اليومي للعبادة والعادات">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1f0d">
+<meta name="description" content="تطبيق العادات الإسلامية - تتبع صلواتك، أذكارك، وعاداتك اليومية">
+
+<title>عاداتي</title>
+
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.svg">
-<title>عاداتي 2.0</title>
+<link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+<link rel="icon" type="image/png" href="assets/icons/icon-72x72.png">
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap');
-:root{--bg:#07150d;--surface:#0e2115;--surface2:#12291a;--text:#f5f7f5;--muted:#91a096;--green:#16a05d;--green2:#0d7d47;--gold:#eabf57;--danger:#ef6b73;--border:rgba(255,255,255,.08);--shadow:0 18px 50px rgba(0,0,0,.25)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#030a06;color:var(--text);font-family:"Noto Sans Arabic",sans-serif}body{min-height:100vh}button,input{font:inherit}button{border:0;cursor:pointer;color:inherit}.app{max-width:480px;margin:auto;min-height:100vh;background:var(--bg);position:relative;overflow:hidden}.main{padding:18px 16px 110px}.page{display:none}.page.active{display:block;animation:in .22s ease}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.eyebrow{font-size:12px;color:var(--muted)}h1,h2,h3,p{margin:0}.title{font-size:25px;font-weight:800}.icon-btn{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.07);display:grid;place-items:center}.avatar{width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,#26b86f,#08703f);display:grid;place-items:center;font-weight:800}
-.card{background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.035));border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow)}.prayer{padding:20px;background:linear-gradient(135deg,#124d31,#0a8d4e 52%,#0c4d31);position:relative;overflow:hidden}.prayer:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);left:-90px;top:-80px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.next-label{font-size:12px;color:#cde7d9}.next-name{font-size:31px;font-weight:800;margin:3px 0}.next-time{font-size:16px;color:#c9f4dd}.count{font-size:30px;font-variant-numeric:tabular-nums}.prayers{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:18px;padding-top:15px;border-top:1px solid rgba(255,255,255,.12)}.prayer-item{text-align:center;font-size:10px;color:rgba(255,255,255,.7)}.p-dot{width:38px;height:38px;border-radius:50%;margin:0 auto 5px;background:rgba(255,255,255,.1);display:grid;place-items:center}.p-dot.done{background:#19a863;color:white}.p-dot.next{outline:2px solid rgba(137,255,194,.55);outline-offset:2px}
-.section{margin-top:18px}.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.section-title{font-size:17px;font-weight:800}.link{color:#61d59a;font-size:12px}.score{padding:18px}.ring{width:82px;height:82px;border-radius:50%;background:conic-gradient(var(--green) var(--pct),rgba(255,255,255,.08) 0);display:grid;place-items:center;position:relative}.ring:after{content:"";position:absolute;inset:7px;background:var(--surface);border-radius:50%}.ring span{position:relative;z-index:1;font-weight:800}.score-grid{display:grid;grid-template-columns:82px 1fr;gap:15px;align-items:center}.mini{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:6px 0}.bar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--green);border-radius:inherit}
-.next-action{padding:17px;background:linear-gradient(135deg,rgba(22,160,93,.16),rgba(22,160,93,.05));border-color:rgba(22,160,93,.25)}.action-title{font-size:16px;font-weight:800}.action-desc{font-size:12px;color:var(--muted);margin-top:4px}.primary{background:var(--green);padding:12px 18px;border-radius:14px;font-weight:800}.ghost{background:rgba(255,255,255,.07);padding:10px 14px;border-radius:13px}.habit{padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:9px}.habit-icon{width:46px;height:46px;border-radius:15px;background:rgba(22,160,93,.15);display:grid;place-items:center;color:#64dfa0}.habit-main{flex:1}.habit-name{font-size:14px;font-weight:700}.habit-meta{font-size:11px;color:var(--muted);margin-top:2px}.check{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.18);display:grid;place-items:center}.check.done{background:var(--green);border-color:var(--green)}.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.quick button{padding:13px 7px;border-radius:17px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:11px}.quick b{display:block;font-size:18px;margin-bottom:4px}.athkar-card{padding:17px;margin-bottom:10px}.arabic{font-family:Amiri,serif;font-size:23px;line-height:2.1;text-align:center}.counter{display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding-top:12px;border-top:1px solid var(--border)}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:13px}.tab{padding:11px;border-radius:14px;background:rgba(255,255,255,.05);color:var(--muted)}.tab.active{background:var(--green);color:white}.chart{height:190px;padding:14px}.bars{height:130px;display:flex;align-items:end;gap:7px}.barcol{flex:1;text-align:center}.barcol i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:var(--green);min-height:4px}.barcol span{font-size:9px;color:var(--muted);display:block;margin-top:5px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{padding:17px}.stat strong{font-size:26px}.muted{color:var(--muted)}.small{font-size:11px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{aspect-ratio:1;border-radius:10px;background:rgba(255,255,255,.045);display:grid;place-items:center;font-size:11px}.day.good{background:rgba(22,160,93,.55)}.day.mid{background:rgba(234,191,87,.45)}.day.bad{background:rgba(239,107,115,.32)}.settings button{width:100%;padding:15px;text-align:right;background:rgba(255,255,255,.045);border:1px solid var(--border);border-radius:16px;margin-bottom:8px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:end;z-index:50}.modal.open{display:flex}.sheet{width:100%;max-width:480px;margin:auto;background:#0c1e12;border-radius:28px 28px 0 0;padding:22px;max-height:88vh;overflow:auto}.sheet h2{margin-bottom:7px}.input{width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:white;outline:none;margin:12px 0}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);height:72px;background:rgba(7,21,13,.96);backdrop-filter:blur(18px);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);z-index:40;padding-bottom:env(safe-area-inset-bottom)}.nav{background:none;color:#718078;font-size:9px}.nav span{display:block;margin-top:4px}.nav.active{color:#48d58e}.toast{position:fixed;top:18px;left:50%;transform:translate(-50%,-120px);background:#123f28;border:1px solid #1d8251;padding:12px 18px;border-radius:14px;z-index:100;color:white;transition:.3s}.toast.show{transform:translate(-50%,0)}
-.light{--bg:#f4f7f5;--surface:#fff;--surface2:#f1f5f2;--text:#162019;--muted:#6c7971;--border:rgba(0,0,0,.08);--shadow:0 12px 30px rgba(20,40,25,.08)}.light body{}.light .bottom{background:rgba(255,255,255,.95)}.light .sheet{background:white}.light .input{color:#162019;background:#f5f7f5}.light .ring:after{background:var(--surface)}
-@media(min-width:481px){.app{box-shadow:0 0 80px rgba(0,0,0,.4)}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    :root {
+        --bg-primary: #0d1f0d;
+        --bg-secondary: #0a150a;
+        --text-primary: #ffffff;
+        --text-secondary: rgba(255,255,255,0.6);
+        --accent: #0d8b4a;
+        --accent-light: #34d399;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+    }
+
+    body.light-mode {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f3f4f6;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+    }
+
+    * { 
+        font-family: 'Noto Sans Arabic', sans-serif; 
+        -webkit-tap-highlight-color: transparent; 
+        touch-action: manipulation; 
+    }
+
+    html, body { 
+        margin: 0; 
+        padding: 0; 
+        background: var(--bg-secondary); 
+        color: var(--text-primary); 
+        height: 100%; 
+        overflow: hidden; 
+        overscroll-behavior-y: none; 
+    }
+
+    #app { 
+        height: 100vh; 
+        width: 100vw; 
+        max-width: 430px; 
+        margin: 0 auto; 
+        position: relative; 
+        background: var(--bg-primary); 
+        overflow: hidden; 
+        display: flex; 
+        flex-direction: column; 
+    }
+
+    .app-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 16px;
+        padding-bottom: 100px;
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .app-content::-webkit-scrollbar { display: none; }
+
+    .glass-card { 
+        background: rgba(255,255,255,0.06); 
+        backdrop-filter: blur(20px); 
+        -webkit-backdrop-filter: blur(20px); 
+        border: 1px solid rgba(255,255,255,0.08); 
+        border-radius: 24px; 
+    }
+
+    body.light-mode .glass-card {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .prayer-glow { 
+        background: linear-gradient(135deg, #1a5c3a 0%, #0d8b4a 50%, #1a5c3a 100%); 
+        box-shadow: 0 0 40px rgba(13,139,74,0.3), inset 0 1px 0 rgba(255,255,255,0.2); 
+    }
+
+    .habit-ring { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .habit-ring.completed { transform: scale(0.95); opacity: 0.7; }
+
+    .check-anim { 
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%; 
+        border: 2px solid rgba(255,255,255,0.2); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        flex-shrink: 0; 
+    }
+
+    .check-anim.checked { 
+        background: var(--accent); 
+        border-color: var(--accent); 
+        transform: scale(1.1); 
+    }
+
+    .check-icon { font-size: 12px; opacity: 0; transition: opacity 0.2s; }
+    .check-anim.checked .check-icon { opacity: 1; }
+
+    .bottom-nav { 
+        height: 70px; 
+        background: rgba(13, 31, 13, 0.95); 
+        backdrop-filter: blur(20px); 
+        -webkit-backdrop-filter: blur(20px); 
+        border-top: 1px solid rgba(255,255,255,0.05); 
+        display: flex; 
+        justify-content: space-around; 
+        align-items: center; 
+        padding-bottom: env(safe-area-inset-bottom, 0px); 
+        z-index: 100; 
+    }
+
+    body.light-mode .bottom-nav {
+        background: rgba(255, 255, 255, 0.95);
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .nav-item { 
+        background: none; 
+        border: none; 
+        color: rgba(255,255,255,0.4); 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 4px; 
+        font-size: 10px; 
+        padding: 8px 12px; 
+        transition: color 0.3s; 
+        cursor: pointer; 
+    }
+
+    .nav-item.active { color: var(--accent); }
+    .nav-item i { font-size: 20px; }
+
+    body.light-mode .nav-item { color: #9ca3af; }
+    body.light-mode .nav-item.active { color: var(--accent); }
+
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn { 
+        from { opacity: 0; transform: translateY(10px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+
+    .streak-flame { animation: flame 2s ease-in-out infinite; }
+    @keyframes flame { 
+        0%,100%{transform:scale(1)} 
+        50%{transform:scale(1.15)} 
+    }
+
+    .pulse-ring { 
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; 
+    }
+
+    @keyframes pulse-ring { 
+        0% { transform: scale(0.8); opacity: 0.8; } 
+        100% { transform: scale(2); opacity: 0; } 
+    }
+
+    .switch { position: relative; width: 50px; height: 28px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider { 
+        position: absolute; 
+        cursor: pointer; 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        background-color: rgba(255,255,255,0.1); 
+        transition: .4s; 
+        border-radius: 28px; 
+    }
+
+    .slider:before { 
+        position: absolute; 
+        content: ""; 
+        height: 22px; 
+        width: 22px; 
+        right: 3px; 
+        bottom: 3px; 
+        background-color: white; 
+        transition: .4s; 
+        border-radius: 50%; 
+    }
+
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(-22px); }
+
+    .verse-card { 
+        background: linear-gradient(135deg, rgba(13,139,74,0.15), rgba(26,92,58,0.1)); 
+        border: 1px solid rgba(13,139,74,0.2); 
+    }
+
+    body.light-mode .verse-card {
+        background: #ecfdf5;
+        border: 1px solid #34d399;
+    }
+
+    .hide-scroll::-webkit-scrollbar { display: none; }
+
+    .haptic { transition: transform 0.1s; }
+    .haptic:active { transform: scale(0.96); }
+
+    .garden-cell { 
+        aspect-ratio: 1; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 18px; 
+        border-radius: 8px; 
+        background: rgba(255,255,255,0.05); 
+        transition: all 0.3s ease;
+    }
+
+    .garden-cell:hover { transform: scale(1.1); }
+
+    .quran-font { 
+        font-family: 'Amiri', serif; 
+        font-size: 1.4rem; 
+        line-height: 2.2; 
+    }
+
+    body.light-mode .text-white { color: var(--text-primary) !important; }
+    body.light-mode .text-white\/50 { color: var(--text-secondary) !important; }
+    body.light-mode .text-white\/60 { color: #6b7280 !important; }
+    body.light-mode .text-white\/70 { color: #6b7280 !important; }
+    body.light-mode .text-white\/80 { color: #4b5563 !important; }
+    body.light-mode .text-white\/40 { color: #9ca3af !important; }
+    body.light-mode .text-white\/30 { color: #9ca3af !important; }
+
+    .skeleton {
+        background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+    }
+
+    @keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    ::selection { background: rgba(13,139,74,0.3); color: white; }
+
+    button:focus-visible, input:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
 </style>
 </head>
 <body>
-<div class="app">
-<main class="main">
-<section id="home" class="page active">
-<div class="top"><div><div class="eyebrow" id="date"></div><h1 class="title" id="greeting">السلام عليكم 👋</h1><div class="small" style="color:#54d897;margin-top:3px">يومك مبارك</div></div><div class="row"><button class="icon-btn" onclick="toggleTheme()" aria-label="تغيير المظهر">◐</button><div class="avatar" id="avatar">أ</div></div></div>
-<div class="card prayer"><div class="row"><div><div class="next-label">الصلاة القادمة</div><div class="next-name" id="nextName">—</div><div class="next-time" id="nextTime">—</div></div><div><div class="count" id="countdown">--:--</div><div class="next-label">متبقي</div></div></div><div class="prayers" id="prayers"></div></div>
-<div class="section card score"><div class="section-head"><h2 class="section-title">تقدم يومك</h2><b id="scoreText" style="color:#62dc9a">0%</b></div><div class="score-grid"><div class="ring" id="ring"><span id="ringText">0%</span></div><div id="scoreRows"></div></div></div>
-<div class="section card next-action"><div class="row"><div><div class="action-title" id="nextActionTitle">خطوتك التالية</div><div class="action-desc" id="nextActionDesc">جاري تجهيز يومك...</div></div><button class="primary" id="nextActionBtn">ابدأ</button></div></div>
-<div class="section"><div class="section-head"><h2 class="section-title">وصول سريع</h2></div><div class="quick"><button onclick="go('athkar')"><b>📿</b>الأذكار</button><button onclick="openQuran()"><b>📖</b>الورد</button><button onclick="openHabit('exercise')"><b>🏃</b>الرياضة</button></div></div>
-<div class="section"><div class="section-head"><h2 class="section-title">عادات اليوم</h2><button class="link" onclick="go('habits')">كل العادات</button></div><div id="homeHabits"></div></div>
-</section>
+    <div id="app">
+        <div id="toast-container"></div>
 
-<section id="habits" class="page">
-<div class="top"><div><div class="eyebrow">الالتزام عبر الزمن</div><h1 class="title">عاداتي</h1></div><button class="icon-btn" onclick="showAddHabit()">＋</button></div>
-<div class="card chart"><div class="section-head"><b>معدل الإنجاز — آخر 7 أيام</b><span class="small muted" id="weekAvg">0%</span></div><div class="bars" id="bars"></div></div>
-<div class="section stat-grid"><div class="card stat"><div class="muted small">الاستمرارية</div><strong id="streakStat">0</strong><div class="muted small">يوم 🔥</div></div><div class="card stat"><div class="muted small">نقاط XP</div><strong id="xpStat">0</strong><div class="muted small">تقدمك</div></div></div>
-<div class="section" id="allHabits"></div>
-<div class="section"><div class="section-head"><h2 class="section-title">سجل الأيام</h2></div><div class="card" style="padding:14px"><div class="calendar" id="calendar"></div></div></div>
-</section>
+        <div class="app-content" id="app-content">
+            <div id="page-container"></div>
+        </div>
 
-<section id="athkar" class="page">
-<div class="top"><div><div class="eyebrow">عبادة قصيرة، أثر كبير</div><h1 class="title">الأذكار</h1></div></div>
-<div class="tabs"><button class="tab active" onclick="setAthkar('morning',this)">الصباح</button><button class="tab" onclick="setAthkar('evening',this)">المساء</button><button class="tab" onclick="setAthkar('sleep',this)">النوم</button></div>
-<div class="card" style="padding:14px;margin-bottom:12px"><div class="mini"><span>التقدم</span><b id="athProgress">0/0</b></div><div class="bar"><i id="athBar" style="width:0%"></i></div></div>
-<div id="athkarList"></div>
-</section>
+        <div class="bottom-nav">
+            <button class="nav-item active" data-route="home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </button>
+            <button class="nav-item" data-route="habits">
+                <i class="fas fa-chart-bar"></i>
+                <span>العادات</span>
+            </button>
+            <button class="nav-item" data-route="athkar">
+                <i class="fas fa-pray"></i>
+                <span>الأذكار</span>
+            </button>
+            <button class="nav-item" data-route="social">
+                <i class="fas fa-users"></i>
+                <span>مجتمعي</span>
+            </button>
+            <button class="nav-item" data-route="profile">
+                <i class="fas fa-user"></i>
+                <span>أنا</span>
+            </button>
+        </div>
+    </div>
 
-<section id="insights" class="page">
-<div class="top"><div><div class="eyebrow">افهم نمطك</div><h1 class="title">إحصائياتي</h1></div></div>
-<div class="stat-grid"><div class="card stat"><div class="muted small">هذا الأسبوع</div><strong id="insWeek">0%</strong></div><div class="card stat"><div class="muted small">أفضل يوم</div><strong id="bestDay">—</strong></div><div class="card stat"><div class="muted small">أفضل عادة</div><strong id="bestHabit">—</strong></div><div class="card stat"><div class="muted small">تحتاج اهتمامًا</div><strong id="weakHabit">—</strong></div></div>
-<div class="section card" style="padding:17px"><div class="section-head"><h2 class="section-title">هذا الشهر</h2></div><div class="calendar" id="monthCalendar"></div></div>
-<div class="section card" style="padding:17px"><h2 class="section-title">إنجازات</h2><div id="achievements" style="margin-top:12px"></div></div>
-</section>
-
-<section id="profile" class="page">
-<div class="top"><div><div class="eyebrow">تخصيص تجربتك</div><h1 class="title">أنا</h1></div></div>
-<div class="card" style="padding:20px;text-align:center"><div class="avatar" style="width:74px;height:74px;margin:auto;font-size:25px" id="profileAvatar">أ</div><h2 id="profileName" style="margin-top:10px">ضيف</h2><div class="muted small">المستوى <span id="level">1</span> • <span id="profileXp">0</span> XP</div></div>
-<div class="section settings">
-<button onclick="editName()">👤 تغيير الاسم <span style="float:left">›</span></button>
-<button onclick="toggleTheme()">🌓 المظهر <span style="float:left">›</span></button>
-<button onclick="requestNotifications()">🔔 تفعيل التذكيرات <span style="float:left">›</span></button>
-<button onclick="requestLocation()">📍 تحديث الموقع وأوقات الصلاة <span style="float:left">›</span></button>
-<button onclick="exportData()">💾 تصدير نسخة احتياطية <span style="float:left">›</span></button>
-<button onclick="importData()">↩️ استعادة نسخة احتياطية <span style="float:left">›</span></button>
-<button onclick="resetAll()" style="color:#ef8b91">🗑️ إعادة ضبط البيانات <span style="float:left">›</span></button>
-</div>
-<div class="section card" style="padding:16px"><b>الخصوصية أولًا</b><p class="muted small" style="margin-top:6px">النسخة الحالية تعمل محليًا على جهازك. تم تجهيز بنية البيانات لتدعم المزامنة السحابية لاحقًا بدون كسر التجربة المحلية.</p></div>
-</section>
-</main>
-
-<nav class="bottom" aria-label="التنقل"><button class="nav active" onclick="go('home',this)">⌂<span>الرئيسية</span></button><button class="nav" onclick="go('habits',this)">✓<span>العادات</span></button><button class="nav" onclick="go('athkar',this)">◉<span>الأذكار</span></button><button class="nav" onclick="go('insights',this)">◫<span>الإحصائيات</span></button><button class="nav" onclick="go('profile',this)">●<span>أنا</span></button></nav>
-</div>
-
-<div class="toast" id="toast"></div>
-<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet" id="sheet"></div></div>
-<input type="file" id="importFile" accept="application/json" hidden>
-
-<script>
-const KEY='adati_v2_state';
-const prayers=[['fajr','الفجر','Fajr'],['dhuhr','الظهر','Dhuhr'],['asr','العصر','Asr'],['maghrib','المغرب','Maghrib'],['isha','العشاء','Isha']];
-const habits=[
-{id:'wird',name:'الورد القرآني',desc:'هدف يومي من الصفحات',icon:'📖',target:5,unit:'صفحة',xp:15},
-{id:'athkar_morning',name:'أذكار الصباح',desc:'بعد الفجر',icon:'🌅',target:1,unit:'جلسة',xp:20},
-{id:'athkar_evening',name:'أذكار المساء',desc:'بعد العصر',icon:'🌙',target:1,unit:'جلسة',xp:20},
-{id:'learn',name:'العلم الشرعي',desc:'وقت تعلم مركز',icon:'🎓',target:15,unit:'دقيقة',xp:15},
-{id:'exercise',name:'الرياضة',desc:'حركة يومية',icon:'🏃',target:30,unit:'دقيقة',xp:10},
-{id:'social',name:'صلة الرحم',desc:'اتصال أو زيارة',icon:'🤝',target:1,unit:'مرة',xp:10},
-{id:'rest',name:'الترويح والتأمل',desc:'استراحة واعية',icon:'☕',target:1,unit:'مرة',xp:5}
-];
-const athkar={
-morning:[
-['أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ','مسلم',1],
-['اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي','البخاري',1],
-['رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا','أبو داود',3],
-['بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ','الترمذي',3],
-['حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ','أبو داود',7],
-['قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾','سورة الإخلاص',3]
-],
-evening:[
-['أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ','مسلم',1],
-['اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ','البخاري',1],
-['رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا','أبو داود',3],
-['بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ','الترمذي',3],
-['حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ','أبو داود',7],
-['قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾','سورة الإخلاص',3]
-],
-sleep:[
-['بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا','البخاري',1],
-['سُبْحَانَ اللَّهِ (٣٣)، الْحَمْدُ لِلَّهِ (٣٣)، اللَّهُ أَكْبَرُ (٣٤)','البخاري ومسلم',1],
-['بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ','البخاري ومسلم',1],
-['اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ','أبو داود',3]
-]};
-function today(){return new Date().toISOString().slice(0,10)}
-function dateLabel(d=new Date()){return new Intl.DateTimeFormat('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(d)}
-function defaultState(){return {version:2,userName:'',theme:'dark',location:null,prayerTimes:null,prayerDate:null,prayers:{},days:{},xp:0,streak:0,habitProgress:{},athkar:{morning:{},evening:{},sleep:{}},wird:{goal:5,page:1},createdAt:new Date().toISOString()}}
-let state=load();
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x?merge(defaultState(),x):defaultState()}catch{return defaultState()}}
-function merge(a,b){for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))a[k]=merge(a[k]||{},b[k]);else a[k]=b[k]}return a}
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function ensureDay(){const d=today();if(!state.days[d])state.days[d]={habits:{},prayers:{},athkar:{},quran:0,score:0,xp:0};return state.days[d]}
-function dayScore(d=today()){const x=state.days[d]||{habits:{},prayers:{},athkar:{},quran:0};let total=5+habits.length,done=Object.values(x.prayers||{}).filter(Boolean).length+Object.values(x.habits||{}).filter(Boolean).length;return Math.round(done/total*100)}
-function setCompletion(type,id,value=true){const d=ensureDay();if(type==='prayer')d.prayers[id]=value;else d.habits[id]=value;d.score=dayScore();save();renderAll()}
-function awardHabit(id){const d=ensureDay();if(!d.habits[id]){const h=habits.find(x=>x.id===id);state.xp+=h?.xp||5;d.xp+=h?.xp||5;d.habits[id]=true;showToast('أحسنت! +'+(h?.xp||5)+' XP 🌿');}else d.habits[id]=false;d.score=dayScore();save();renderAll()}
-function togglePrayer(id){const d=ensureDay();d.prayers[id]=!d.prayers[id];if(d.prayers[id]){state.xp+=10;d.xp+=10;showToast('تم تسجيل الصلاة 🕌 +10 XP')}d.score=dayScore();save();renderAll()}
-function getTimes(){return state.prayerTimes||{Fajr:'05:00',Dhuhr:'12:15',Asr:'15:30',Maghrib:'18:45',Isha:'20:00'}}
-let nextTarget=null,nextId=null;
-function calculateNext(){const t=getTimes(),now=new Date(),mins=now.getHours()*60+now.getMinutes();let found=null;for(const p of prayers){const v=t[p[2]];if(!v)continue;const [h,m]=v.split(':').map(Number),pm=h*60+m;if(pm>mins){found={p,h,m,pm};break}}if(!found){const [h,m]=t.Fajr.split(':').map(Number);found={p:prayers[0],h,m,pm:h*60+m};found.tomorrow=true}nextId=found.p[0];nextTarget=new Date();nextTarget.setHours(found.h,found.m,0,0);if(found.tomorrow)nextTarget.setDate(nextTarget.getDate()+1);return found}
-function renderPrayer(){const t=getTimes(),n=calculateNext();document.getElementById('nextName').textContent=n.p[1];document.getElementById('nextTime').textContent=fmtTime(t[n.p[2]]);document.getElementById('prayers').innerHTML=prayers.map(p=>`<button class="prayer-item" onclick="togglePrayer('${p[0]}')"><div class="p-dot ${ensureDay().prayers[p[0]]?'done':''} ${nextId===p[0]?'next':''}">${ensureDay().prayers[p[0]]?'✓':'•'}</div>${p[1]}</button>`).join('')}
-function fmtTime(s){if(!s)return'—';let [h,m]=s.split(':').map(Number);return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'م':'ص'}`}
-function countdown(){if(!nextTarget)return;let diff=nextTarget-new Date();if(diff<0){renderPrayer();diff=nextTarget-new Date()}let h=Math.floor(diff/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3);document.getElementById('countdown').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
-function renderScore(){const s=dayScore(),d=ensureDay();document.getElementById('scoreText').textContent=s+'%';document.getElementById('ringText').textContent=s+'%';document.getElementById('ring').style.setProperty('--pct',s+'%');const rows=[['الصلاة',Object.values(d.prayers).filter(Boolean).length,5],['العادات',Object.values(d.habits).filter(Boolean).length,habits.length],['القرآن',d.quran||0,state.wird.goal]];document.getElementById('scoreRows').innerHTML=rows.map(r=>`<div class="mini"><span>${r[0]}</span><b>${r[1]}/${r[2]}</b></div><div class="bar"><i style="width:${Math.min(100,r[1]/r[2]*100)}%"></i></div>`).join('')}
-function renderHabits(containerId){const c=document.getElementById(containerId),d=ensureDay();c.innerHTML=habits.map(h=>{const done=!!d.habits[h.id];return `<div class="card habit" onclick="openHabit('${h.id}')"><div class="habit-icon">${h.icon}</div><div class="habit-main"><div class="habit-name">${h.name}</div><div class="habit-meta">${h.desc} • ${h.target} ${h.unit}</div></div><div class="check ${done?'done':''}">${done?'✓':''}</div></div>`}).join('')}
-function renderNextAction(){const d=ensureDay();let candidate=null;const now=new Date().getHours();if(now<11&&!d.habits.athkar_morning)candidate=habits.find(h=>h.id==='athkar_morning');else if(now>=15&&!d.habits.athkar_evening)candidate=habits.find(h=>h.id==='athkar_evening');else candidate=habits.find(h=>!d.habits[h.id]);if(!candidate){document.getElementById('nextActionTitle').textContent='ممتاز، يومك مكتمل 🎉';document.getElementById('nextActionDesc').textContent='حافظ على الاستمرارية وارجع غدًا.';document.getElementById('nextActionBtn').style.display='none';return}document.getElementById('nextActionTitle').textContent=candidate.name;document.getElementById('nextActionDesc').textContent=candidate.desc;const b=document.getElementById('nextActionBtn');b.style.display='block';b.onclick=()=>openHabit(candidate.id)}
-function renderHome(){document.getElementById('date').textContent=dateLabel();document.getElementById('greeting').textContent=state.userName?`السلام عليكم يا ${state.userName} 👋`:'السلام عليكم 👋';document.getElementById('avatar').textContent=(state.userName||'أ').charAt(0);renderPrayer();renderScore();renderNextAction();renderHabits('homeHabits')}
-function renderBars(){const vals=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);vals.push(dayScore(key))}document.getElementById('bars').innerHTML=vals.map((v,i)=>`<div class="barcol"><i style="height:${Math.max(4,v)}%"></i><span>${new Intl.DateTimeFormat('ar-SA',{weekday:'short'}).format(new Date(Date.now()-(6-i)*864e5))}</span></div>`).join('');document.getElementById('weekAvg').textContent=Math.round(vals.reduce((a,b)=>a+b,0)/7)+'%'}
-function renderCalendar(id,days=30){const c=document.getElementById(id);c.innerHTML='';for(let i=days-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10),s=dayScore(k),e=document.createElement('div');e.className='day '+(s>=80?'good':s>=45?'mid':s>0?'bad':'');e.title=`${k}: ${s}%`;e.textContent=d.getDate();c.appendChild(e)}}
-function renderInsights(){const vals=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);vals.push(dayScore(d.toISOString().slice(0,10)))}document.getElementById('insWeek').textContent=Math.round(vals.reduce((a,b)=>a+b,0)/7)+'%';const best=vals.indexOf(Math.max(...vals));document.getElementById('bestDay').textContent=new Intl.DateTimeFormat('ar-SA',{weekday:'short'}).format(new Date(Date.now()-(6-best)*864e5));const scores=habits.map(h=>{let n=0;for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);if(state.days[d.toISOString().slice(0,10)]?.habits?.[h.id])n++}return[h,n]});scores.sort((a,b)=>b[1]-a[1]);document.getElementById('bestHabit').textContent=scores[0][0].name;document.getElementById('weakHabit').textContent=scores[scores.length-1][0].name;renderCalendar('monthCalendar',30);renderAchievements()}
-function renderAchievements(){const a=[['🌱','أول إنجاز',state.xp>=5],['🔥','7 أيام استمرارية',state.streak>=7],['📖','قارئ مستمر',Object.values(state.days).filter(x=>x.quran>0).length>=7],['🕌','أسبوع صلاة',Object.values(state.days).filter(x=>Object.values(x.prayers||{}).length>=5).length>=7]];document.getElementById('achievements').innerHTML=a.map(x=>`<div class="card" style="padding:12px;margin-bottom:7px;opacity:${x[2]?1:.45}">${x[0]} <b>${x[1]}</b><span class="muted small" style="float:left">${x[2]?'مفتوحة':'مقفلة'}</span></div>`).join('')}
-function renderProfile(){document.getElementById('profileName').textContent=state.userName||'ضيف';document.getElementById('profileAvatar').textContent=(state.userName||'أ').charAt(0);document.getElementById('profileXp').textContent=state.xp;document.getElementById('level').textContent=Math.floor(state.xp/100)+1}
-function renderAll(){renderHome();renderBars();renderHabits('allHabits');renderInsights();renderProfile();if(document.getElementById('athkar').classList.contains('active'))renderAthkar(currentAthkar)}
-function go(page,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(page).classList.add('active');document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');else document.querySelector(`.nav[onclick*="'${page}'"]`)?.classList.add('active');renderAll();scrollTo(0,0)}
-let currentAthkar='morning';
-function setAthkar(type,btn){currentAthkar=type;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAthkar(type)}
-function renderAthkar(type){const data=athkar[type],s=state.athkar[type]||{};let done=data.filter((a,i)=>(s[i]||0)>=a[2]).length;document.getElementById('athProgress').textContent=`${done}/${data.length}`;document.getElementById('athBar').style.width=done/data.length*100+'%';document.getElementById('athkarList').innerHTML=data.map((a,i)=>{let n=s[i]||0,ok=n>=a[2];return `<article class="card athkar-card" style="opacity:${ok?.65:1}"><div class="arabic">${a[0]}</div><div class="muted small" style="text-align:center;margin-top:5px">${a[1]} • ${a[2]} ${a[2]===1?'مرة':'مرات'}</div><div class="counter"><span>${n}/${a[2]}</span><button class="${ok?'ghost':'primary'}" ${ok?'disabled':''} onclick="incAthkar('${type}',${i})">${ok?'✓ مكتمل':'تسبيح +1'}</button></div></article>`}).join('')}
-function incAthkar(type,i){const data=athkar[type][i],s=state.athkar[type]||(state.athkar[type]={});s[i]=(s[i]||0)+1;if(s[i]>=data[2]){const habitId=type==='morning'?'athkar_morning':type==='evening'?'athkar_evening':null;if(habitId&&!ensureDay().habits[habitId]){ensureDay().habits[habitId]=true;state.xp+=20;ensureDay().xp+=20;showToast('اكتملت الأذكار 🌿')}}save();renderAthkar(type);renderAll()}
-function openHabit(id){const h=habits.find(x=>x.id===id);if(!h)return;const d=ensureDay();const done=!!d.habits[id];document.getElementById('sheet').innerHTML=`<h2>${h.icon} ${h.name}</h2><p class="muted small">${h.desc}</p><div class="card" style="padding:18px;margin:16px 0;text-align:center"><div class="muted small">إنجاز اليوم</div><div style="font-size:38px;font-weight:800;margin:8px">${done?'مكتمل':'جاهز'}</div><div class="muted small">الهدف: ${h.target} ${h.unit}</div></div><button class="primary" style="width:100%" onclick="awardHabit('${id}');closeModal()">${done?'إلغاء الإنجاز':'تم الإنجاز ✓'}</button>`;openModal()}
-function openModal(){document.getElementById('modal').classList.add('open')}
-function closeModal(){document.getElementById('modal').classList.remove('open')}
-function openQuran(){document.getElementById('sheet').innerHTML=`<h2>📖 الورد القرآني</h2><p class="muted small">هدفك اليومي ${state.wird.goal} صفحات • آخر صفحة ${state.wird.page}</p><input class="input" id="pageInput" type="number" min="1" max="604" value="${state.wird.page}"><div class="row"><button class="ghost" onclick="changeQuran(-1)">− صفحة</button><button class="primary" onclick="completeQuran()">أتممت وردي</button><button class="ghost" onclick="changeQuran(1)">+ صفحة</button></div><p class="muted small" style="margin-top:14px">القراءة داخل التطبيق ستكون المرحلة التالية؛ حاليًا يحفظ التطبيق موضعك وإنجازك محليًا.</p>`;openModal()}
-function changeQuran(x){const i=document.getElementById('pageInput');i.value=Math.max(1,Math.min(604,Number(i.value)+x))}
-function completeQuran(){const d=ensureDay();d.quran=state.wird.goal;state.wird.page=Math.min(604,Number(document.getElementById('pageInput').value)+state.wird.goal);state.xp+=15;d.xp+=15;save();closeModal();showToast('تم تسجيل الورد 📖 +15 XP');renderAll()}
-function showAddHabit(){document.getElementById('sheet').innerHTML=`<h2>إضافة عادة</h2><p class="muted small">في هذه النسخة نحافظ على العادات الأساسية المدمجة. محرر العادات المخصص سيكون متصلًا بقاعدة البيانات في مرحلة السحابة.</p><button class="primary" style="width:100%;margin-top:18px" onclick="closeModal()">حسنًا</button>`;openModal()}
-function editName(){document.getElementById('sheet').innerHTML=`<h2>اسمك</h2><input class="input" id="nameInput" value="${state.userName}" placeholder="اكتب اسمك"><button class="primary" style="width:100%" onclick="saveName()">حفظ</button>`;openModal()}
-function saveName(){state.userName=document.getElementById('nameInput').value.trim();save();closeModal();renderAll()}
-function toggleTheme(){document.documentElement.classList.toggle('light');state.theme=document.documentElement.classList.contains('light')?'light':'dark';save()}
-function requestNotifications(){if(!('Notification'in window)){showToast('الإشعارات غير مدعومة هنا');return}Notification.requestPermission().then(p=>showToast(p==='granted'?'تم تفعيل الإشعارات 🔔':'لم يتم منح الصلاحية'))}
-function requestLocation(){if(!navigator.geolocation){showToast('الموقع غير مدعوم');return}showToast('جاري تحديد موقعك…');navigator.geolocation.getCurrentPosition(async pos=>{state.location={lat:pos.coords.latitude,lng:pos.coords.longitude};try{const r=await fetch(`https://api.aladhan.com/v1/timings?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&method=4`);const j=await r.json();state.prayerTimes=j.data.timings;state.prayerDate=today();save();renderAll();showToast('تم تحديث أوقات الصلاة 🕌')}catch{showToast('تعذر جلب الأوقات؛ تم الاحتفاظ بالبيانات السابقة')}},()=>showToast('تعذر الوصول للموقع'))}
-function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`adati-backup-${today()}.json`;a.click();URL.revokeObjectURL(a.href)}
-function importData(){document.getElementById('importFile').click()}
-document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=merge(defaultState(),JSON.parse(r.result));save();renderAll();showToast('تمت استعادة النسخة')}catch{showToast('النسخة غير صالحة')}};r.readAsText(f)}
-function resetAll(){if(confirm('سيتم حذف بيانات هذا التطبيق من الجهاز. هل أنت متأكد؟')){localStorage.removeItem(KEY);location.reload()}}
-function showToast(x){const t=document.getElementById('toast');t.textContent=x;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),2300)}
-function updateStreak(){let n=0,d=new Date();d.setDate(d.getDate()-1);while(dayScore(d.toISOString().slice(0,10))>=70){n++;d.setDate(d.getDate()-1)}state.streak=n+(dayScore()>=70?1:0)}
-function init(){if(state.theme==='light')document.documentElement.classList.add('light');ensureDay();updateStreak();renderAll();if(!state.userName)editName();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});setInterval(countdown,1000);countdown()}
-init();
-</script>
+    <script type="module" src="src/app.js"></script>
 </body>
 </html>

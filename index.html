@@ -10,13 +10,13 @@
 <title>عاداتي</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-<!-- تم إضافة خط أميري هنا -->
+
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- تم إضافة مكتبة Chart.js هنا -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- 💡 هنا الحل: تم إضافة مكتبة Tailwind CSS لترتيب الشاشة 💡 -->
 <script src="https://cdn.tailwindcss.com"></script>
+
 <style>
 * { font-family: 'Noto Sans Arabic', sans-serif; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 html, body { margin: 0; padding: 0; background: #0a150a; color: white; height: 100%; overflow: hidden; overscroll-behavior-y: none; }
@@ -60,11 +60,10 @@ input:checked + .slider:before { transform: translateX(-22px); }
 .confetti { position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 9999; animation: confetti-fall 2s ease-out forwards; }
 @keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(400px) rotate(720deg); opacity: 0; } }
 
-/* --- إضافات التصميم الجديدة --- */
 /* تخصيص الخط القرآني */
 .quran-font { font-family: 'Amiri', serif; font-size: 1.4rem; line-height: 2.2; }
 
-/* إعدادات الوضع النهاري (Light Mode) */
+/* إعدادات الوضع النهاري */
 body.light-mode { background: #f3f4f6; color: #1f2937; }
 body.light-mode #app { background: #ffffff; }
 body.light-mode .glass-card { background: #f9fafb; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
@@ -78,7 +77,6 @@ body.light-mode .verse-card { background: #ecfdf5; border: 1px solid #34d399; }
 body.light-mode .prayer-glow { box-shadow: 0 10px 25px rgba(13,139,74,0.15); }
 body.light-mode .modal-content { background: #ffffff; }
 body.light-mode .prayer-icon i { color: #1f2937 !important; }
-/* --------------------------- */
 
 </style>
 </head>
@@ -87,7 +85,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
 <div id="toast" class="toast"></div>
 <div class="scroll-area">
 
-<!-- ===== HOME PAGE ===== -->
 <div id="page-home" class="page active">
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -95,7 +92,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
             <h1 class="text-white text-2xl font-bold">السلام عليكم 👋</h1>
             <p class="text-emerald-400 text-sm mt-1">يومك مبارك</p>
         </div>
-        <!-- تم إضافة زر الوضع النهاري هنا -->
         <div class="flex items-center gap-3">
             <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-emerald-400 transition-colors haptic" id="theme-toggle">
                 <i class="fas fa-sun"></i>
@@ -107,7 +103,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         </div>
     </div>
 
-    <!-- Prayer Card -->
     <div class="prayer-glow rounded-3xl p-5 mb-5 text-white relative overflow-hidden">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
         <div class="relative z-10">
@@ -147,7 +142,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         </div>
     </div>
 
-    <!-- Progress -->
     <div class="glass-card p-5 mb-5">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-white font-bold text-lg">تقدم يومك</h3>
@@ -172,7 +166,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="flex gap-3 mb-5 overflow-x-auto hide-scroll">
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('wird')"><i class="fas fa-book-open"></i> الورد</button>
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-sky-600/30 border border-sky-500/30 text-sky-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('athkar')"><i class="fas fa-sun"></i> الأذكار</button>
@@ -180,20 +173,16 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-orange-600/30 border border-orange-500/30 text-orange-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('exercise')"><i class="fas fa-running"></i> رياضة</button>
     </div>
 
-    <!-- Habits -->
     <h3 class="text-white font-bold text-lg mb-3">عادات اليوم</h3>
     <div class="space-y-3 mb-5" id="habits-list"></div>
 
-    <!-- Verse -->
     <div class="verse-card rounded-3xl p-5 mb-5">
         <div class="flex items-center gap-2 mb-3"><i class="fas fa-quote-right text-emerald-400"></i><span class="text-emerald-400 text-xs font-medium">آية اليوم</span></div>
-        <!-- تم تفعيل الخط القرآني هنا -->
         <p class="quran-font text-white text-center font-medium">﴿وَأَقِمِ الصَّلَاةَ لِذِكْرِي﴾</p>
         <p class="text-white/50 text-xs text-center mt-2">سورة طه - الآية ١٤</p>
     </div>
 </div>
 
-<!-- ===== HABITS PAGE ===== -->
 <div id="page-habits" class="page">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-white text-2xl font-bold">عاداتي</h1>
@@ -207,13 +196,11 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     </div>
     <div class="glass-card p-4 mb-5">
         <h3 class="text-white font-semibold mb-3 text-sm">معدل الإنجاز (آخر ٧ أيام)</h3>
-        <!-- تم إضافة الرسم البياني هنا -->
         <canvas id="habitsChart" height="150"></canvas>
     </div>
     <div class="space-y-3" id="all-habits"></div>
 </div>
 
-<!-- ===== ATHKAR PAGE ===== -->
 <div id="page-athkar" class="page">
     <div class="mb-6">
         <h1 class="text-white text-2xl font-bold">الأذكار</h1>
@@ -231,7 +218,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     <div class="space-y-3" id="athkar-list"></div>
 </div>
 
-<!-- ===== SOCIAL PAGE ===== -->
 <div id="page-social" class="page">
     <div class="mb-6">
         <h1 class="text-white text-2xl font-bold">مجتمعي</h1>
@@ -280,7 +266,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     <button class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-lg" onclick="showToast('تم إرسال التشجيع! 💚')"><i class="fas fa-heart mr-2"></i> شجع أصدقاءك</button>
 </div>
 
-<!-- ===== PROFILE PAGE ===== -->
 <div id="page-profile" class="page">
     <div class="text-center mb-6">
         <div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 mx-auto flex items-center justify-center text-white text-3xl font-bold border-4 border-emerald-500/30 mb-3">أ</div>
@@ -329,7 +314,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
 
 </div>
 
-<!-- Bottom Nav -->
 <div class="bottom-nav">
     <button class="nav-item active" onclick="navigateTo('home', this)"><i class="fas fa-home"></i><span>الرئيسية</span></button>
     <button class="nav-item" onclick="navigateTo('habits', this)"><i class="fas fa-chart-bar"></i><span>العادات</span></button>
@@ -338,7 +322,6 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     <button class="nav-item" onclick="navigateTo('profile', this)"><i class="fas fa-user"></i><span>أنا</span></button>
 </div>
 
-<!-- Modal -->
 <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
 <div id="modal-content" class="modal-content">
     <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
@@ -466,7 +449,6 @@ function toggleTheme() {
         icon.className = 'fas fa-sun';
         localStorage.setItem('theme', 'dark');
     }
-    // تحديث الرسم البياني ليتناسب مع الألوان
     if (document.getElementById('page-habits').classList.contains('active')) {
         renderHabitsPage(); 
     }
@@ -701,6 +683,66 @@ function toggleNotifications(el) {
     }
 }
 
+// ===================== SMART REMINDERS (الإشعارات الذكية) =====================
+let lastReminderMinute = -1;
+
+function checkSmartReminders() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    // التحقق حتى لا نرسل أكثر من إشعار في نفس الدقيقة
+    if (minutes === lastReminderMinute) return;
+
+    let reminderTitle = '';
+    let reminderBody = '';
+
+    // 1. تذكير صلاة الضحى (الساعة 9:00 صباحاً)
+    if (hours === 9 && minutes === 0) {
+        reminderTitle = 'صلاة الضحى ☀️';
+        reminderBody = 'صلاة الأوابين.. ركعتان تكفيك صدقة عن كل مفصل.';
+    }
+    
+    // 2. تذكير أذكار المساء (الساعة 4:30 عصراً - 16:30)
+    if (hours === 16 && minutes === 30) {
+        // نتحقق أولاً هل قرأ أذكار المساء أم لا
+        const eveningDone = Object.values(state.athkar.evening).some(v => v > 0);
+        if (!eveningDone) {
+            reminderTitle = 'أذكار المساء 🌙';
+            reminderBody = 'لا تنس قراءة أذكار المساء، فهي حصنك الحصين.';
+        }
+    }
+
+    // 3. تذكير إنقاذ الاستمرارية (الساعة 10:00 مساءً - 22:00)
+    if (hours === 22 && minutes === 0) {
+        // نتحقق هل توجد عادات غير مكتملة
+        const allHabitsDone = habitsData.every(h => state.habits[h.id]?.completed);
+        if (!allHabitsDone) {
+            reminderTitle = 'عاداتك تنتظرك! 🔥';
+            reminderBody = 'لا تدع اليوم يمر دون إكمال عاداتك للحفاظ على شعلة الاستمرارية.';
+        }
+    }
+
+    // إرسال الإشعار إذا توفر
+    if (reminderTitle !== '') {
+        sendNotification(reminderTitle, reminderBody);
+        lastReminderMinute = minutes;
+    }
+}
+
+function sendNotification(title, body) {
+    showToast(title + " - " + body);
+    
+    // إرسال إشعار للنظام إذا كان مسموحاً
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { 
+            body: body, 
+            icon: 'icons/icon-192x192.png',
+            vibrate: [200, 100, 200]
+        });
+    }
+}
+
 // ===================== INIT =====================
 function init() {
     if (localStorage.getItem('theme') === 'light') {
@@ -715,7 +757,8 @@ function init() {
     document.getElementById('current-date').textContent = now.toLocaleDateString('ar-SA', options);
     renderHomeHabits();
     renderProfile();
-    // Update countdown every minute
+    
+    // تحديث العد التنازلي والتحقق من التنبيهات كل دقيقة
     setInterval(() => {
         const now = new Date();
         const maghrib = new Date(); maghrib.setHours(18, 42, 0);
@@ -724,8 +767,12 @@ function init() {
         const h = Math.floor(diff / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         document.getElementById('countdown').textContent = h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
+        
+        // استدعاء دالة التذكير الذكي
+        checkSmartReminders();
+        
     }, 60000);
-    // Register service worker
+    
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
     }

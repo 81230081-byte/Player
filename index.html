@@ -10,9 +10,13 @@
 <title>عاداتي</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<!-- تم إضافة خط أميري هنا -->
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- تم إضافة مكتبة Chart.js هنا -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- 💡 هنا الحل: تم إضافة مكتبة Tailwind CSS لترتيب الشاشة 💡 -->
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
 * { font-family: 'Noto Sans Arabic', sans-serif; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 html, body { margin: 0; padding: 0; background: #0a150a; color: white; height: 100%; overflow: hidden; overscroll-behavior-y: none; }
@@ -83,6 +87,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
 <div id="toast" class="toast"></div>
 <div class="scroll-area">
 
+<!-- ===== HOME PAGE ===== -->
 <div id="page-home" class="page active">
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -90,6 +95,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
             <h1 class="text-white text-2xl font-bold">السلام عليكم 👋</h1>
             <p class="text-emerald-400 text-sm mt-1">يومك مبارك</p>
         </div>
+        <!-- تم إضافة زر الوضع النهاري هنا -->
         <div class="flex items-center gap-3">
             <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-emerald-400 transition-colors haptic" id="theme-toggle">
                 <i class="fas fa-sun"></i>
@@ -101,6 +107,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         </div>
     </div>
 
+    <!-- Prayer Card -->
     <div class="prayer-glow rounded-3xl p-5 mb-5 text-white relative overflow-hidden">
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
         <div class="relative z-10">
@@ -140,6 +147,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         </div>
     </div>
 
+    <!-- Progress -->
     <div class="glass-card p-5 mb-5">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-white font-bold text-lg">تقدم يومك</h3>
@@ -164,6 +172,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         </div>
     </div>
 
+    <!-- Quick Actions -->
     <div class="flex gap-3 mb-5 overflow-x-auto hide-scroll">
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('wird')"><i class="fas fa-book-open"></i> الورد</button>
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-sky-600/30 border border-sky-500/30 text-sky-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('athkar')"><i class="fas fa-sun"></i> الأذكار</button>
@@ -171,16 +180,20 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
         <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-orange-600/30 border border-orange-500/30 text-orange-400 text-sm font-medium flex items-center gap-2 haptic" onclick="openModal('exercise')"><i class="fas fa-running"></i> رياضة</button>
     </div>
 
+    <!-- Habits -->
     <h3 class="text-white font-bold text-lg mb-3">عادات اليوم</h3>
     <div class="space-y-3 mb-5" id="habits-list"></div>
 
+    <!-- Verse -->
     <div class="verse-card rounded-3xl p-5 mb-5">
         <div class="flex items-center gap-2 mb-3"><i class="fas fa-quote-right text-emerald-400"></i><span class="text-emerald-400 text-xs font-medium">آية اليوم</span></div>
+        <!-- تم تفعيل الخط القرآني هنا -->
         <p class="quran-font text-white text-center font-medium">﴿وَأَقِمِ الصَّلَاةَ لِذِكْرِي﴾</p>
         <p class="text-white/50 text-xs text-center mt-2">سورة طه - الآية ١٤</p>
     </div>
 </div>
 
+<!-- ===== HABITS PAGE ===== -->
 <div id="page-habits" class="page">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-white text-2xl font-bold">عاداتي</h1>
@@ -194,11 +207,13 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     </div>
     <div class="glass-card p-4 mb-5">
         <h3 class="text-white font-semibold mb-3 text-sm">معدل الإنجاز (آخر ٧ أيام)</h3>
+        <!-- تم إضافة الرسم البياني هنا -->
         <canvas id="habitsChart" height="150"></canvas>
     </div>
     <div class="space-y-3" id="all-habits"></div>
 </div>
 
+<!-- ===== ATHKAR PAGE ===== -->
 <div id="page-athkar" class="page">
     <div class="mb-6">
         <h1 class="text-white text-2xl font-bold">الأذكار</h1>
@@ -216,6 +231,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     <div class="space-y-3" id="athkar-list"></div>
 </div>
 
+<!-- ===== SOCIAL PAGE ===== -->
 <div id="page-social" class="page">
     <div class="mb-6">
         <h1 class="text-white text-2xl font-bold">مجتمعي</h1>
@@ -264,6 +280,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     <button class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-lg" onclick="showToast('تم إرسال التشجيع! 💚')"><i class="fas fa-heart mr-2"></i> شجع أصدقاءك</button>
 </div>
 
+<!-- ===== PROFILE PAGE ===== -->
 <div id="page-profile" class="page">
     <div class="text-center mb-6">
         <div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 mx-auto flex items-center justify-center text-white text-3xl font-bold border-4 border-emerald-500/30 mb-3">أ</div>
@@ -312,6 +329,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
 
 </div>
 
+<!-- Bottom Nav -->
 <div class="bottom-nav">
     <button class="nav-item active" onclick="navigateTo('home', this)"><i class="fas fa-home"></i><span>الرئيسية</span></button>
     <button class="nav-item" onclick="navigateTo('habits', this)"><i class="fas fa-chart-bar"></i><span>العادات</span></button>
@@ -320,6 +338,7 @@ body.light-mode .prayer-icon i { color: #1f2937 !important; }
     <button class="nav-item" onclick="navigateTo('profile', this)"><i class="fas fa-user"></i><span>أنا</span></button>
 </div>
 
+<!-- Modal -->
 <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
 <div id="modal-content" class="modal-content">
     <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
@@ -437,7 +456,6 @@ function navigateTo(page, btn) {
 }
 
 // ===================== THEME =====================
-// تم إضافة دالة تغيير الوضع النهاري هنا
 function toggleTheme() {
     const isLight = document.body.classList.toggle('light-mode');
     const icon = document.querySelector('#theme-toggle i');
@@ -514,7 +532,6 @@ function updateProgress() {
 }
 
 // ===================== HABITS PAGE =====================
-// تم تعديل هذه الدالة لتشغيل الرسم البياني (Chart.js) بدلاً من المربعات العشوائية
 let habitsChartInstance = null;
 function renderHabitsPage() {
     const list = document.getElementById('all-habits');
@@ -574,7 +591,6 @@ function renderAthkar(type) {
     list.innerHTML = data.map((a, i) => {
         const current = state.athkar[type][i] || 0;
         const done = current >= a.count;
-        // تم إضافة كلاس quran-font في السطر التالي للأذكار
         return `<div class="glass-card p-5 ${done ? 'opacity-60' : ''}"><div class="flex justify-between items-start mb-3"><span class="text-emerald-400 text-xs font-medium bg-emerald-500/10 px-3 py-1 rounded-full">${a.count} ${a.count === 1 ? 'مرة' : 'مرات'}</span>${done ? '<span class="text-emerald-400 text-sm"><i class="fas fa-check-circle"></i></span>' : ''}</span></div><p class="quran-font text-white text-center mb-4">${a.text}</p><div class="flex justify-between items-center pt-3 border-t border-white/10"><span class="text-white/40 text-xs">${a.source}</span><div class="flex items-center gap-3"><span class="text-white/60 text-sm">${current}/${a.count}</span><button class="w-10 h-10 rounded-full ${done ? 'bg-emerald-800' : 'bg-emerald-600'} flex items-center justify-center text-white haptic" onclick="incrementAthkar('${type}', ${i}, ${a.count})" ${done ? 'disabled' : ''}><i class="fas fa-plus"></i></button></div></div></div>`;
     }).join('');
 }
@@ -687,7 +703,6 @@ function toggleNotifications(el) {
 
 // ===================== INIT =====================
 function init() {
-    // تم إضافة استرجاع الوضع النهاري من التخزين هنا
     if (localStorage.getItem('theme') === 'light') {
         document.body.classList.add('light-mode');
         const themeToggle = document.querySelector('#theme-toggle i');

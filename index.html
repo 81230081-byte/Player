@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1f0d">
+<meta name="description" content="تطبيق العادات الإسلامية - تتبع صلواتك، أذكارك، وعاداتك اليومية">
+<title>عاداتي</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{--bg-primary:#0d1f0d;--bg-secondary:#0a150a;--text-primary:#fff;--accent:#0d8b4a;--accent-light:#34d399}
+body.light-mode{--bg-primary:#fff;--bg-secondary:#f3f4f6;--text-primary:#1f2937}
+*{font-family:'Noto Sans Arabic',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{margin:0;padding:0;background:var(--bg-secondary);color:var(--text-primary);height:100%;overflow:hidden;overscroll-behavior-y:none}
+#app{height:100vh;width:100vw;max-width:430px;margin:0 auto;position:relative;background:var(--bg-primary);overflow:hidden;display:flex;flex-direction:column}
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:100px}
+.scroll-area::-webkit-scrollbar{display:none}
+.glass-card{background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:24px}
+body.light-mode .glass-card{background:#f9fafb;border:1px solid #e5e7eb;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}
+.prayer-glow{background:linear-gradient(135deg,#1a5c3a 0%,#0d8b4a 50%,#1a5c3a 100%);box-shadow:0 0 40px rgba(13,139,74,0.3),inset 0 1px 0 rgba(255,255,255,0.2)}
+.habit-ring{transition:all .4s cubic-bezier(0.34,1.56,0.64,1)}
+.check-anim{transition:all .3s cubic-bezier(0.34,1.56,0.64,1);width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-anim.checked{background:var(--accent);border-color:var(--accent);transform:scale(1.1)}
+.check-icon{font-size:12px;opacity:0;transition:opacity .2s}
+.check-anim.checked .check-icon{opacity:1}
+.bottom-nav{height:70px;background:rgba(13,31,13,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-around;align-items:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
+body.light-mode .bottom-nav{background:rgba(255,255,255,0.95);border-top:1px solid #e5e7eb}
+.nav-item{background:none;border:none;color:rgba(255,255,255,0.4);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;padding:8px 12px;transition:color .3s;cursor:pointer}
+.nav-item.active{color:var(--accent)}
+.nav-item i{font-size:20px}
+body.light-mode .nav-item{color:#9ca3af}
+body.light-mode .nav-item.active{color:var(--accent)}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.streak-flame{animation:flame 2s ease-in-out infinite}
+@keyframes flame{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.pulse-ring{animation:pulse-ring 2s cubic-bezier(0.215,0.61,0.355,1) infinite}
+@keyframes pulse-ring{0%{transform:scale(0.8);opacity:.8}100%{transform:scale(2);opacity:0}}
+.switch{position:relative;width:50px;height:28px}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:rgba(255,255,255,0.1);transition:.4s;border-radius:28px}
+.slider:before{position:absolute;content:"";height:22px;width:22px;right:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%}
+input:checked+.slider{background-color:var(--accent)}
+input:checked+.slider:before{transform:translateX(-22px)}
+.verse-card{background:linear-gradient(135deg,rgba(13,139,74,0.15),rgba(26,92,58,0.1));border:1px solid rgba(13,139,74,0.2)}
+body.light-mode .verse-card{background:#ecfdf5;border:1px solid #34d399}
+.hide-scroll::-webkit-scrollbar{display:none}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:rgba(13,139,74,0.95);color:white;padding:12px 24px;border-radius:16px;font-size:14px;z-index:300;transition:transform .4s cubic-bezier(0.34,1.56,0.64,1);backdrop-filter:blur(10px);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{background:rgba(239,68,68,0.95)}
+.toast.warning{background:rgba(245,158,11,0.95)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:200;display:none;opacity:0;transition:opacity .3s ease}
+.modal-overlay.show{display:block;opacity:1}
+.modal-content{position:fixed;bottom:0;left:0;right:0;background:var(--bg-primary);border-radius:30px 30px 0 0;padding:24px;z-index:201;max-height:85vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease}
+.modal-content.open{transform:translateY(0)}
+body.light-mode .modal-content{background:#fff}
+.progress-ring-circle{transition:stroke-dashoffset .8s cubic-bezier(0.4,0,0.2,1)}
+.haptic{transition:transform .1s}
+.haptic:active{transform:scale(0.96)}
+.garden-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:8px;background:rgba(255,255,255,0.05);transition:all .3s ease}
+.garden-cell:hover{transform:scale(1.1)}
+.confetti{position:fixed;width:8px;height:8px;pointer-events:none;z-index:9999;animation:confetti-fall 2s ease-out forwards}
+@keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(400px) rotate(720deg);opacity:0}}
+.quran-font{font-family:'Amiri',serif;font-size:1.4rem;line-height:2.2}
+body.light-mode .text-white{color:var(--text-primary)!important}
+body.light-mode .text-white\/50,body.light-mode .text-white\/60,body.light-mode .text-white\/70,body.light-mode .text-white\/80{color:#6b7280!important}
+body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:#9ca3af!important}
+.skeleton{background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);background-size:200% 100%;animation:skeleton-loading 1.5s infinite}
+@keyframes skeleton-loading{0%{background-position:200% 0}100%{background-position:-200% 0}}
+::selection{background:rgba(13,139,74,0.3);color:white}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="toast" class="toast"></div>
+<div id="modal-overlay" class="modal-overlay" onclick="App.closeModal()"></div>
+<div id="modal-content" class="modal-content">
+    <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+    <div id="modal-body"></div>
+</div>
+<div class="scroll-area" id="scroll-area">
+
+<!-- PAGE: HOME -->
+<div id="page-home" class="page active">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <p class="text-white/50 text-xs mb-1" id="current-date">--</p>
+            <h1 class="text-white text-2xl font-bold" id="greeting-name">السلام عليكم 👋</h1>
+            <p class="text-emerald-400 text-sm mt-1">يومك مبارك</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="App.toggleTheme()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-emerald-400 transition-colors haptic" id="theme-toggle">
+                <i class="fas fa-sun"></i>
+            </button>
+            <div class="relative">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-bold text-lg border-2 border-emerald-400/30" id="top-avatar">أ</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="prayer-glow rounded-3xl p-5 mb-5 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="relative z-10">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p class="text-white/70 text-xs mb-1">الصلاة القادمة</p>
+                    <h2 class="text-3xl font-bold" id="next-prayer-name">...</h2>
+                    <p class="text-emerald-200 text-lg" id="next-prayer-time-display">جاري الحساب...</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-light font-mono" id="countdown">--:--</div>
+                    <p class="text-white/60 text-xs mt-1">متبقي</p>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4 pt-4 border-t border-white/10">
+                <div class="text-center cursor-pointer haptic" onclick="App.togglePrayer(this, 'fajr')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all relative" id="prayer-fajr"><i class="fas fa-check text-emerald-300 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">الفجر</span>
+                </div>
+                <div class="text-center cursor-pointer haptic" onclick="App.togglePrayer(this, 'dhuhr')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all relative" id="prayer-dhuhr"><i class="fas fa-check text-emerald-300 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">الظهر</span>
+                </div>
+                <div class="text-center cursor-pointer haptic" onclick="App.togglePrayer(this, 'asr')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all relative" id="prayer-asr"><i class="fas fa-check text-emerald-300 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">العصر</span>
+                </div>
+                <div class="text-center cursor-pointer haptic" onclick="App.togglePrayer(this, 'maghrib')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all relative" id="prayer-maghrib"><i class="fas fa-moon text-white/50 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">المغرب</span>
+                </div>
+                <div class="text-center cursor-pointer haptic" onclick="App.togglePrayer(this, 'isha')">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all relative" id="prayer-isha"><i class="fas fa-star text-white/50 text-sm"></i></div>
+                    <span class="text-[10px] text-white/80">العشاء</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 mb-5">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-white font-bold text-lg">تقدم يومك</h3>
+            <span class="text-emerald-400 text-sm font-medium" id="day-progress">0%</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative w-20 h-20 flex-shrink-0">
+                <svg class="w-20 h-20 -rotate-90">
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#0d8b4a" stroke-width="6" stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round" class="progress-ring-circle" id="progress-circle"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center"><i class="fas fa-fire text-amber-400 text-xl streak-flame"></i></div>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-amber-400 font-bold text-2xl" id="streak-days">0</span>
+                    <span class="text-white/60 text-sm">يوم متتالي 🔥</span>
+                </div>
+                <p class="text-white/40 text-xs">أكمل عاداتك اليوم للحفاظ على الاستمرارية</p>
+                <div class="flex gap-1 mt-2" id="week-dots"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-3 mb-5 overflow-x-auto hide-scroll pb-2">
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-emerald-600/30 border border-emerald-500/30 text-emerald-400 text-sm font-medium flex items-center gap-2 haptic hover:bg-emerald-600/50 transition-colors" onclick="App.openModal('wird')"><i class="fas fa-book-open"></i> الورد</button>
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-sky-600/30 border border-sky-500/30 text-sky-400 text-sm font-medium flex items-center gap-2 haptic hover:bg-sky-600/50 transition-colors" onclick="App.openModal('athkar_morning')"><i class="fas fa-sun"></i> الأذكار</button>
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-violet-600/30 border border-violet-500/30 text-violet-400 text-sm font-medium flex items-center gap-2 haptic hover:bg-violet-600/50 transition-colors" onclick="App.openModal('learn')"><i class="fas fa-graduation-cap"></i> تعلم</button>
+        <button class="flex-shrink-0 px-5 py-3 rounded-2xl bg-orange-600/30 border border-orange-500/30 text-orange-400 text-sm font-medium flex items-center gap-2 haptic hover:bg-orange-600/50 transition-colors" onclick="App.openModal('exercise')"><i class="fas fa-running"></i> رياضة</button>
+    </div>
+
+    <h3 class="text-white font-bold text-lg mb-3">عادات اليوم</h3>
+    <div class="space-y-3 mb-5" id="habits-list"></div>
+
+    <div class="verse-card rounded-3xl p-5 mb-5">
+        <div class="flex items-center gap-2 mb-3"><i class="fas fa-quote-right text-emerald-400"></i><span class="text-emerald-400 text-xs font-medium">آية اليوم</span></div>
+        <p class="quran-font text-white text-center font-medium">﴿وَأَقِمِ الصَّلَاةَ لِذِكْرِي﴾</p>
+        <p class="text-white/50 text-xs text-center mt-2">سورة طه - الآية ١٤</p>
+    </div>
+</div>
+
+<!-- PAGE: HABITS -->
+<div id="page-habits" class="page">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-white text-2xl font-bold">عاداتي</h1>
+        <button class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white haptic hover:bg-emerald-500 transition-colors" onclick="App.showToast('قريباً إضافة عادات خاصة')"><i class="fas fa-plus"></i></button>
+    </div>
+    <div class="glass-card p-4 mb-5">
+        <h3 class="text-white font-semibold mb-3 text-sm">معدل الإنجاز (آخر ٧ أيام)</h3>
+        <canvas id="habitsChart" height="150"></canvas>
+    </div>
+    <div class="space-y-3" id="all-habits"></div>
+</div>
+
+<!-- PAGE: ATHKAR -->
+<div id="page-athkar" class="page">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-white text-2xl font-bold">الأذكار</h1>
+            <p class="text-white/50 text-sm">أذكار الصباح والمساء</p>
+        </div>
+        <button class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white haptic transition-colors hover:bg-white/20" onclick="App.navigateTo('home')">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+    <div class="flex gap-2 mb-5">
+        <button class="flex-1 py-3 rounded-2xl bg-emerald-600 text-white font-medium text-sm haptic" onclick="App.switchAthkarTab('morning', this)"><i class="fas fa-sun mr-1"></i> الصباح</button>
+        <button class="flex-1 py-3 rounded-2xl bg-white/5 text-white/60 font-medium text-sm haptic" onclick="App.switchAthkarTab('evening', this)"><i class="fas fa-moon mr-1"></i> المساء</button>
+        <button class="flex-1 py-3 rounded-2xl bg-white/5 text-white/60 font-medium text-sm haptic" onclick="App.switchAthkarTab('sleep', this)"><i class="fas fa-bed mr-1"></i> النوم</button>
+    </div>
+    <div class="glass-card p-3 mb-5">
+        <div class="flex justify-between text-xs text-white/60 mb-2"><span>التقدم</span><span id="athkar-progress-text">٠/٧</span></div>
+        <div class="h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full transition-all" style="width:0%" id="athkar-progress-bar"></div></div>
+    </div>
+    <div class="space-y-3 pb-8" id="athkar-list"></div>
+</div>
+
+<!-- PAGE: SOCIAL -->
+<div id="page-social" class="page">
+    <div class="mb-6">
+        <h1 class="text-white text-2xl font-bold">مجتمعي</h1>
+        <p class="text-white/50 text-sm">تحفيز وروابط اجتماعية</p>
+    </div>
+    <div class="glass-card p-5 mb-5">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white text-xl"><i class="fas fa-home"></i></div>
+                <div><h3 class="text-white font-bold">عائلتي</h3><p class="text-white/50 text-xs">٥ أعضاء</p></div>
+            </div>
+            <span class="text-emerald-400 text-sm font-medium">#١</span>
+        </div>
+        <div class="space-y-2 mb-4">
+            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs">أ</div>
+                <span class="text-white text-sm flex-1">أحمد</span>
+                <span class="text-amber-400 text-xs">🔥 ١٥</span>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                <div class="w-8 h-8 rounded-full bg-sky-600 flex items-center justify-center text-white text-xs">م</div>
+                <span class="text-white text-sm flex-1">محمد</span>
+                <span class="text-amber-400 text-xs">🔥 ١٢</span>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                <div class="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center text-white text-xs">ف</div>
+                <span class="text-white text-sm flex-1">فاطمة</span>
+                <span class="text-amber-400 text-xs">🔥 ٨</span>
+            </div>
+        </div>
+        <button class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-lg hover:from-emerald-500 hover:to-emerald-600 transition-all" onclick="App.showToast('قريباً: المزامنة السحابية! ☁️')"><i class="fas fa-cloud mr-2"></i> تفعيل السحابة</button>
+    </div>
+    <div class="glass-card p-5 mb-5">
+        <h3 class="text-white font-bold mb-3">التحديات الأسبوعية 🏆</h3>
+        <div class="space-y-3">
+            <div class="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white"><i class="fas fa-pray"></i></div>
+                <div class="flex-1"><p class="text-white text-sm font-medium">صلاة الفجر في الجماعة</p><p class="text-white/50 text-xs">٥/٧ أيام</p></div>
+                <div class="w-16 h-16 relative"><svg class="w-full h-full -rotate-90"><circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/><circle cx="32" cy="32" r="28" fill="none" stroke="#0d8b4a" stroke-width="4" stroke-dasharray="175.9" stroke-dashoffset="50" stroke-linecap="round"/></svg><span class="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">٧١%</span></div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                <div class="w-10 h-10 rounded-full bg-amber-600 flex items-center justify-center text-white"><i class="fas fa-book-open"></i></div>
+                <div class="flex-1"><p class="text-white text-sm font-medium">ورد يومي مستمر</p><p class="text-white/50 text-xs">٣٠ يوم</p></div>
+                <span class="text-amber-400 text-sm">🔥</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE: PROFILE -->
+<div id="page-profile" class="page">
+    <div class="text-center mb-6">
+        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 mx-auto flex items-center justify-center text-white text-3xl font-bold border-4 border-emerald-500/30 mb-3 relative" id="profile-avatar">أ</div>
+        <h2 class="text-white text-xl font-bold" id="profile-name">ضيف</h2>
+        <p class="text-white/50 text-sm">مستوى: <span id="profile-level">المبتدئ</span> 🌱</p>
+    </div>
+    <div class="glass-card p-4 mb-5">
+        <div class="flex justify-between items-center mb-2"><span class="text-white/60 text-xs" id="level-text">المستوى ١: المبتدئ</span><span class="text-emerald-400 text-xs" id="xp-text">٠/١٠٠ XP</span></div>
+        <div class="h-3 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all" style="width:0%" id="xp-bar"></div></div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-emerald-400 mb-1" id="stat-streak">0</div><p class="text-white/50 text-xs">يوم متتالي</p></div>
+        <div class="glass-card p-4 text-center"><div class="text-3xl font-bold text-amber-400 mb-1" id="stat-rate">0%</div><p class="text-white/50 text-xs">معدل الإنجاز</p></div>
+    </div>
+    <h3 class="text-white font-bold mb-3">حديقة الأعمال 🌱</h3>
+    <div class="glass-card p-4 mb-5">
+        <p class="text-white/50 text-xs mb-3 text-center">كل يوم من الاستمرارية يزرع زهرة</p>
+        <div class="grid grid-cols-7 gap-2" id="garden-grid"></div>
+    </div>
+    <h3 class="text-white font-bold mb-3">الإعدادات ⚙️</h3>
+    <div class="space-y-2 mb-5">
+        <button class="w-full glass-card p-4 flex items-center justify-between text-right hover:bg-white/5 transition-colors" onclick="App.fetchPrayerTimes(true)">
+            <div class="flex items-center gap-3"><i class="fas fa-location-dot text-emerald-400"></i><span class="text-white text-sm">تحديث موقعي (لأوقات الصلاة)</span></div>
+            <i class="fas fa-chevron-left text-white/30 text-xs"></i>
+        </button>
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3"><i class="fas fa-bell text-emerald-400"></i><span class="text-white text-sm">الإشعارات</span></div>
+            <label class="switch"><input type="checkbox" checked onchange="App.toggleNotifications(this)"><span class="slider"></span></label>
+        </div>
+        <div class="glass-card p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3"><i class="fas fa-mobile-screen text-emerald-400"></i><span class="text-white text-sm">الاهتزاز</span></div>
+            <label class="switch"><input type="checkbox" checked onchange="App.toggleHaptics(this)"><span class="slider"></span></label>
+        </div>
+        <button class="w-full glass-card p-4 flex items-center justify-between text-right hover:bg-white/5 transition-colors" onclick="App.exportData()">
+            <div class="flex items-center gap-3"><i class="fas fa-download text-emerald-400"></i><span class="text-white text-sm">تصدير البيانات</span></div>
+            <i class="fas fa-chevron-left text-white/30 text-xs"></i>
+        </button>
+    </div>
+    <button class="w-full py-3 rounded-2xl bg-red-500/20 text-red-400 text-sm font-medium mb-8 hover:bg-red-500/30 transition-colors" onclick="App.resetData()"><i class="fas fa-trash-alt mr-2"></i> إعادة ضبط البيانات</button>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-item active" onclick="App.navigateTo('home', this)" data-route="home"><i class="fas fa-home"></i><span>الرئيسية</span></button>
+    <button class="nav-item" onclick="App.navigateTo('habits', this)" data-route="habits"><i class="fas fa-chart-bar"></i><span>العادات</span></button>
+    <button class="nav-item" onclick="App.navigateTo('athkar', this)" data-route="athkar"><i class="fas fa-pray"></i><span>الأذكار</span></button>
+    <button class="nav-item" onclick="App.navigateTo('social', this)" data-route="social"><i class="fas fa-users"></i><span>مجتمعي</span></button>
+    <button class="nav-item" onclick="App.navigateTo('profile', this)" data-route="profile"><i class="fas fa-user"></i><span>أنا</span></button>
+</div>
+</div>
+
+<script>
+
+(function() {
+    // ===================== STATE =====================
+    var state = {
+        userName: '', userLevel: 1, xp: 0, streak: 0, longestStreak: 0,
+        prayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
+        habits: {}, athkar: { morning: {}, evening: {}, sleep: {} },
+        wird: { dailyGoal: 5, lastPage: 1 },
+        progress: {}, garden: [], lastDate: null,
+        theme: 'dark', haptics: true, notifications: true,
+        prayerTimes: null, prayerTimesDate: null
+    };
+
+    var habitsData = [
+        { id: 'wird', title: 'الورد اليومي', desc: 'تتبع وحفظ صفحاتك', icon: 'fa-book-open', color: 'emerald', xp: 15 },
+        { id: 'athkar_morning', title: 'أذكار الصباح', desc: 'بعد صلاة الفجر', icon: 'fa-sun', color: 'sky', xp: 20 },
+        { id: 'athkar_evening', title: 'أذكار المساء', desc: 'بعد صلاة العصر', icon: 'fa-moon', color: 'indigo', xp: 20 },
+        { id: 'learn', title: 'تعلم العلم الشرعي', desc: 'وقت التعلم', icon: 'fa-graduation-cap', color: 'violet', xp: 15, track: { unit: 'دقيقة', target: 15, step: 5 } },
+        { id: 'exercise', title: 'الرياضة', desc: 'وقت التمرين', icon: 'fa-running', color: 'orange', xp: 10, track: { unit: 'دقيقة', target: 30, step: 5 } },
+        { id: 'social', title: 'صلة الرحم', desc: 'اتصال بعائلتك', icon: 'fa-users', color: 'pink', xp: 10 },
+        { id: 'rest', title: 'الترويح عن النفس', desc: 'استراحة وتأمل', icon: 'fa-coffee', color: 'amber', xp: 5 }
+    ];
+
+    var athkarData = {
+        morning: [
+            { text: 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', source: 'مسلم', count: 1 },
+            { text: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', source: 'البخاري (سيد الاستغفار)', count: 1 },
+            { text: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا', source: 'أبو داود', count: 3 },
+            { text: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ', source: 'الترمذي', count: 3 },
+            { text: 'حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ', source: 'أبو داود', count: 7 },
+            { text: 'قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾', source: 'سورة الإخلاص', count: 3 },
+            { text: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِن شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾', source: 'سورة الفلق', count: 3 },
+            { text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَهِ النَّاسِ ﴿٣﴾ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾', source: 'سورة الناس', count: 3 }
+        ],
+        evening: [
+            { text: 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', source: 'مسلم', count: 1 },
+            { text: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', source: 'البخاري (سيد الاستغفار)', count: 1 },
+            { text: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا', source: 'أبو داود', count: 3 },
+            { text: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ، وَهُوَ السَّمِيعُ الْعَلِيمُ', source: 'الترمذي', count: 3 },
+            { text: 'حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ', source: 'أبو داود', count: 7 },
+            { text: 'قُلْ هُوَ اللَّهُ أَحَدٌ ﴿١﴾ اللَّهُ الصَّمَدُ ﴿٢﴾ لَمْ يَلِدْ وَلَمْ يُولَدْ ﴿٣﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ ﴿٤﴾', source: 'سورة الإخلاص', count: 3 },
+            { text: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴿١﴾ مِن شَرِّ مَا خَلَقَ ﴿٢﴾ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ﴿٣﴾ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ﴿٤﴾ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ ﴿٥﴾', source: 'سورة الفلق', count: 3 },
+            { text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ﴿١﴾ مَلِكِ النَّاسِ ﴿٢﴾ إِلَهِ النَّاسِ ﴿٣﴾ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ﴿٤﴾ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ﴿٥﴾ مِنَ الْجِنَّةِ وَالنَّاسِ ﴿٦﴾', source: 'سورة الناس', count: 3 }
+        ],
+        sleep: [
+            { text: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', source: 'البخاري', count: 1 },
+            { text: 'سُبْحَانَ اللَّهِ (٣٣)، الْحَمْدُ لِلَّهِ (٣٣)، اللَّهُ أَكْبَرُ (٣٤)', source: 'البخاري ومسلم', count: 1 },
+            { text: 'بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ', source: 'البخاري ومسلم', count: 1 },
+            { text: 'اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ', source: 'أبو داود', count: 3 }
+        ]
+    };
+
+    var nextPrayerTarget = null;
+    var countdownInterval = null;
+    var currentAthkarTab = 'morning';
+
+    // ===================== UTILS =====================
+    function sanitize(input) {
+        if (typeof input !== 'string') return '';
+        return input.replace(/[<>]/g, '').replace(/javascript:/gi, '').replace(/on\w+=/gi, '').trim().slice(0, 100);
+    }
+
+    function formatDate() {
+        return new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function getLevelName(level) {
+        var levels = ['المبتدئ', 'المتقدم', 'المحترف', 'الخبير', 'الأستاذ'];
+        return levels[Math.min(level - 1, levels.length - 1)] || 'المبتدئ';
+    }
+
+    // ===================== STORAGE =====================
+    function loadState() {
+        try {
+            var saved = localStorage.getItem('islamicHabitApp_v2');
+            if (saved) {
+                var parsed = JSON.parse(saved);
+                for (var k in parsed) state[k] = parsed[k];
+            }
+        } catch (e) {}
+
+        habitsData.forEach(function(h) {
+            if (!state.habits[h.id]) state.habits[h.id] = { completed: false, streak: 0 };
+        });
+        ['morning', 'evening', 'sleep'].forEach(function(type) {
+            athkarData[type].forEach(function(_, i) {
+                if (state.athkar[type][i] === undefined) state.athkar[type][i] = 0;
+            });
+        });
+        checkNewDay();
+    }
+
+    function saveState() {
+        try { localStorage.setItem('islamicHabitApp_v2', JSON.stringify(state)); }
+        catch (e) {}
+    }
+
+    function checkNewDay() {
+        var today = new Date().toDateString();
+        if (state.lastDate === today) return;
+
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        var wasComplete = checkDayCompletion(state.lastDate);
+
+        if (state.lastDate === yesterday.toDateString() && wasComplete) {
+            state.streak++;
+            state.garden.push(true);
+            if (state.streak > state.longestStreak) state.longestStreak = state.streak;
+        } else if (state.lastDate && state.lastDate !== today) {
+            state.garden.push(false);
+            state.streak = 0;
+        }
+
+        habitsData.forEach(function(h) {
+            if (state.habits[h.id]) {
+                if (state.habits[h.id].completed) state.habits[h.id].streak++;
+                else state.habits[h.id].streak = 0;
+                state.habits[h.id].completed = false;
+            }
+        });
+
+        Object.keys(state.prayers).forEach(function(k) { state.prayers[k] = false; });
+        ['morning', 'evening', 'sleep'].forEach(function(type) {
+            athkarData[type].forEach(function(_, i) { state.athkar[type][i] = 0; });
+        });
+
+        state.lastDate = today;
+        saveState();
+    }
+
+    function checkDayCompletion(dateStr) {
+        if (!dateStr) return false;
+        var donePrayers = Object.values(state.prayers).filter(Boolean).length;
+        var doneHabits = habitsData.filter(function(h) { return state.habits[h.id] && state.habits[h.id].completed; }).length;
+        return (donePrayers + doneHabits) >= 7;
+    }
+
+    // ===================== UI HELPERS =====================
+    function showToast(msg, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast show' + (type ? ' ' + type : '');
+        setTimeout(function() { toast.classList.remove('show'); }, 2500);
+    }
+
+    function createConfetti() {
+        var colors = ['#0d8b4a', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
+        for (var i = 0; i < 25; i++) {
+            var c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.background = colors[Math.floor(Math.random() * colors.length)];
+            c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            c.style.animationDelay = Math.random() * 0.5 + 's';
+            document.body.appendChild(c);
+            setTimeout(function(el) { return function() { el.remove(); }; }(c), 2500);
+        }
+    }
+
+    function triggerHaptic() {
+        if (state.haptics && navigator.vibrate) navigator.vibrate(10);
+    }
+
+    function openModal(type) {
+        var overlay = document.getElementById('modal-overlay');
+        var content = document.getElementById('modal-content');
+        var body = document.getElementById('modal-body');
+        var habit = habitsData.find(function(h) { return h.id === type; });
+        var html = '';
+
+        if (type === 'wird') {
+            html = '<div class="text-center"><h2 class="text-white text-2xl font-bold mb-4">الورد اليومي 📖</h2><div class="glass-card p-4 mb-4"><div class="flex justify-between items-center mb-4"><span class="text-white/60 text-sm">هدفك اليومي (صفحة)</span><div class="flex items-center gap-3"><button class="w-8 h-8 rounded bg-white/10 text-white" onclick="App.changeWird(\'dailyGoal\', -1)">-</button><span class="text-xl font-bold text-white w-8 text-center">' + state.wird.dailyGoal + '</span><button class="w-8 h-8 rounded bg-white/10 text-white" onclick="App.changeWird(\'dailyGoal\', 1)">+</button></div></div><div class="flex justify-between items-center mb-4 pt-4 border-t border-white/10"><span class="text-white/60 text-sm">تقف عند صفحة</span><div class="flex items-center gap-3"><button class="w-8 h-8 rounded bg-white/10 text-white" onclick="App.changeWird(\'lastPage\', -1)">-</button><span class="text-xl font-bold text-emerald-400 w-12 text-center">' + state.wird.lastPage + '</span><button class="w-8 h-8 rounded bg-white/10 text-white" onclick="App.changeWird(\'lastPage\', 1)">+</button></div></div><button class="w-full py-3 rounded-xl bg-white/10 text-white font-medium mb-2 flex items-center justify-center gap-2" onclick="window.open(\'https://quran.com/page/' + state.wird.lastPage + '\', \'_blank\')"><i class="fas fa-external-link-alt"></i> افتح المصحف</button></div><button class="w-full py-4 rounded-xl bg-emerald-600 text-white font-bold" onclick="App.completeWird()">أتممت وردي اليوم ✅</button></div>';
+        } else if (type.startsWith('athkar')) {
+            var tab = type.split('_')[1] || 'morning';
+            html = '<div class="text-center"><h2 class="text-white text-2xl font-bold mb-2">الأذكار 📿</h2><p class="text-white/60 text-sm mb-6">انتقل لصفحة الأذكار للقراءة والتسبيح.</p><button class="w-full py-4 rounded-xl bg-sky-600 text-white font-bold" onclick="App.closeModal(); App.navigateTo(\'athkar\');">الذهاب للأذكار</button></div>';
+        } else if (habit && habit.track) {
+            if (!state.progress[type]) state.progress[type] = { current: 0 };
+            var prog = state.progress[type].current;
+            var target = habit.track.target;
+            html = '<div class="text-center"><h2 class="text-white text-2xl font-bold mb-2">' + habit.title + '</h2><div class="glass-card p-4 mb-4"><span class="text-white/60 text-sm">إنجاز اليوم (' + habit.track.unit + ')</span><div class="flex justify-center items-center gap-4 my-4"><button class="w-10 h-10 rounded-full bg-white/10 text-white" onclick="App.changeProgress(\'' + type + '\', -' + habit.track.step + ')">-' + habit.track.step + '</button><span class="text-3xl font-bold text-' + habit.color + '-400 w-16">' + prog + '</span><button class="w-10 h-10 rounded-full bg-white/10 text-white" onclick="App.changeProgress(\'' + type + '\', ' + habit.track.step + ')">+' + habit.track.step + '</button></div><div class="h-2 bg-white/10 rounded-full overflow-hidden mx-4 mb-2"><div class="h-full bg-' + habit.color + '-500 rounded-full transition-all" style="width:' + Math.min(100, (prog/target)*100) + '%"></div></div><span class="text-white/40 text-xs">الهدف: ' + target + ' ' + habit.track.unit + '</span></div><button class="w-full py-4 rounded-xl bg-' + habit.color + '-600 text-white font-bold" onclick="App.confirmProgress(\'' + type + '\', ' + target + ')">حفظ الإنجاز</button></div>';
+        } else if (habit) {
+            html = '<div class="text-center"><h2 class="text-white text-2xl font-bold mb-2">' + habit.title + '</h2><p class="text-white/60 text-sm mb-6">هل أتممت هذه العادة؟</p><button class="w-full py-4 rounded-xl bg-' + habit.color + '-600 text-white font-bold mb-3" onclick="App.toggleHabit(\'' + type + '\'); App.closeModal();">أنجزت ✅</button><button class="w-full py-4 rounded-xl bg-white/10 text-white font-bold" onclick="App.closeModal()">ليس بعد</button></div>';
+        }
+
+        body.innerHTML = html;
+        overlay.classList.add('show');
+        setTimeout(function() { content.classList.add('open'); }, 10);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('modal-content').classList.remove('open');
+        document.getElementById('modal-overlay').classList.remove('show');
+        setTimeout(function() {
+            document.getElementById('modal-body').innerHTML = '';
+            document.body.style.overflow = '';
+        }, 300);
+    }
+
+    // ===================== NAVIGATION =====================
+    function navigateTo(page, btn) {
+        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+        document.getElementById('page-' + page).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        else document.querySelectorAll('.nav-item').forEach(function(n) { if (n.dataset.route === page) n.classList.add('active'); });
+
+        if (page === 'habits') renderHabitsPage();
+        if (page === 'profile') renderProfile();
+        if (page === 'athkar') renderAthkar(currentAthkarTab);
+        document.getElementById('scroll-area').scrollTop = 0;
+    }
+
+    function toggleTheme() {
+        var isLight = document.body.classList.toggle('light-mode');
+        state.theme = isLight ? 'light' : 'dark';
+        var icon = document.querySelector('#theme-toggle i');
+        if (icon) icon.className = isLight ? 'fas fa-moon' : 'fas fa-sun';
+        saveState();
+    }
+
+    // ===================== HOME =====================
+    function renderHome() {
+        document.getElementById('current-date').textContent = formatDate();
+        document.getElementById('greeting-name').textContent = 'السلام عليكم 👋' + (state.userName ? ' يا ' + sanitize(state.userName) : '');
+        document.getElementById('top-avatar').textContent = state.userName ? sanitize(state.userName).charAt(0) : 'أ';
+
+        var colors = { emerald: 'from-emerald-600 to-emerald-800', sky: 'from-sky-600 to-sky-800', indigo: 'from-indigo-600 to-indigo-800', violet: 'from-violet-600 to-violet-800', orange: 'from-orange-600 to-red-700', pink: 'from-pink-600 to-rose-700', amber: 'from-amber-600 to-orange-700' };
+        var container = document.getElementById('habits-list');
+        container.innerHTML = habitsData.map(function(h) {
+            var completed = state.habits[h.id] && state.habits[h.id].completed;
+            return '<div class="glass-card p-4 flex items-center gap-4 cursor-pointer haptic" onclick="App.openModal(\'' + h.id + '\')"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br ' + colors[h.color] + ' flex items-center justify-center text-white text-xl habit-ring ' + (completed ? 'completed' : '') + '"><i class="fas ' + h.icon + '"></i></div><div class="flex-1"><h4 class="text-white font-semibold">' + h.title + '</h4><p class="text-white/50 text-xs">' + h.desc + '</p>' + (state.habits[h.id] && state.habits[h.id].streak > 0 ? '<span class="text-amber-400 text-xs">⚡ ' + state.habits[h.id].streak + ' أيام</span>' : '') + '</div><div class="check-anim ' + (completed ? 'checked' : '') + '"><i class="fas fa-check text-white check-icon"></i></div></div>';
+        }).join('');
+
+        updateProgress();
+        renderWeekDots();
+    }
+
+    function renderWeekDots() {
+        var days = ['أحد', 'إثن', 'ثل', 'أرب', 'خم', 'جم', 'سبت'];
+        var container = document.getElementById('week-dots');
+        var weekData = state.garden.slice(-7);
+        while (weekData.length < 7) weekData.unshift(null);
+
+        container.innerHTML = days.map(function(day, i) {
+            var status = weekData[i];
+            var color = status === true ? 'bg-emerald-500' : status === false ? 'bg-red-500/50' : 'bg-white/10';
+            return '<div class="flex flex-col items-center gap-1"><div class="w-3 h-3 rounded-full ' + color + ' transition-all"></div><span class="text-[8px] text-white/40">' + day + '</span></div>';
+        }).join('');
+    }
+
+    function updateProgress() {
+        var total = 5 + habitsData.length;
+        var donePrayers = Object.values(state.prayers).filter(Boolean).length;
+        var doneHabits = habitsData.filter(function(h) { return state.habits[h.id] && state.habits[h.id].completed; }).length;
+        var percent = Math.round(((donePrayers + doneHabits) / total) * 100);
+        document.getElementById('day-progress').textContent = percent + '%';
+        document.getElementById('progress-circle').style.strokeDashoffset = 201 - (201 * percent / 100);
+        document.getElementById('streak-days').textContent = state.streak;
+    }
+
+    // ===================== PRAYER TIMES =====================
+    function fetchPrayerTimes(force) {
+        var today = new Date().toDateString();
+        if (!force && state.prayerTimesDate === today && state.prayerTimes) { updatePrayerUI(); return; }
+        if (force) showToast('جاري تحديث الأوقات...');
+
+        var fallback = function() {
+            state.prayerTimes = { Fajr: '04:30', Sunrise: '05:50', Dhuhr: '12:15', Asr: '15:30', Maghrib: '18:00', Isha: '19:30' };
+            state.prayerTimesDate = today;
+            saveState();
+            updatePrayerUI();
+            if (force) showToast('لا يوجد اتصال، تم وضع أوقات تقريبية', 'warning');
+        };
+
+        var fetchAPI = function(lat, lng) {
+            fetch('https://api.aladhan.com/v1/timings?latitude=' + lat + '&longitude=' + lng + '&method=4')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.code === 200 && data.data) {
+                        state.prayerTimes = data.data.timings;
+                        state.prayerTimesDate = today;
+                        saveState();
+                        updatePrayerUI();
+                        if (force) showToast('تم تحديث أوقات الصلاة!');
+                    } else fallback();
+                })
+                .catch(fallback);
+        };
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) { fetchAPI(pos.coords.latitude, pos.coords.longitude); },
+                function() {
+                    fetch('https://ipinfo.io/json')
+                        .then(function(r) { return r.json(); })
+                        .then(function(d) { var loc = d.loc.split(','); fetchAPI(loc[0], loc[1]); })
+                        .catch(fallback);
+                },
+                { timeout: 5000 }
+            );
+        } else fallback();
+    }
+
+    function updatePrayerUI() {
+        if (!state.prayerTimes) return;
+        var now = new Date();
+        var current = now.getHours() * 60 + now.getMinutes();
+        var prayers = [
+            { id: 'fajr', name: 'Fajr', ar: 'الفجر' },
+            { id: 'dhuhr', name: 'Dhuhr', ar: 'الظهر' },
+            { id: 'asr', name: 'Asr', ar: 'العصر' },
+            { id: 'maghrib', name: 'Maghrib', ar: 'المغرب' },
+            { id: 'isha', name: 'Isha', ar: 'العشاء' }
+        ];
+
+        var next = prayers[0], minDiff = Infinity, isTomorrow = false;
+        for (var i = 0; i < prayers.length; i++) {
+            var p = prayers[i];
+            if (!state.prayerTimes[p.name]) continue;
+            var parts = state.prayerTimes[p.name].split(':');
+            var pmins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            var diff = pmins - current;
+            if (diff < 0) diff += 24 * 60;
+            if (diff < minDiff) { minDiff = diff; next = p; isTomorrow = pmins < current; }
+        }
+
+        document.getElementById('next-prayer-name').textContent = next.ar;
+        var displayH = Math.floor(minDiff / 60);
+        var displayM = minDiff % 60;
+        document.getElementById('next-prayer-time-display').textContent = (isTomorrow ? 'غداً ' : '') + displayH + ' ساعة ' + displayM + ' دقيقة';
+
+        nextPrayerTarget = new Date();
+        nextPrayerTarget.setHours(parseInt(state.prayerTimes[next.name].split(':')[0]), parseInt(state.prayerTimes[next.name].split(':')[1]), 0);
+        if (isTomorrow) nextPrayerTarget.setDate(nextPrayerTarget.getDate() + 1);
+
+        updateCountdown();
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(updateCountdown, 60000);
+
+        // Update prayer icons
+        prayers.forEach(function(p) {
+            var el = document.getElementById('prayer-' + p.id);
+            if (!el) return;
+            var isNext = p.id === next.id;
+            var isDone = state.prayers[p.id];
+            var pulse = el.querySelector('.pulse-ring');
+            if (pulse) pulse.remove();
+
+            if (isDone) {
+                el.className = 'w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center mb-1 transition-all relative';
+                el.innerHTML = '<i class="fas fa-check text-white text-sm"></i>';
+            } else if (isNext) {
+                el.className = 'w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all relative';
+                el.innerHTML = '<i class="fas fa-' + (p.id === 'maghrib' ? 'moon' : p.id === 'isha' ? 'star' : 'check') + ' text-emerald-300 text-sm"></i><div class="absolute inset-0 rounded-full border-2 border-emerald-400/50 pulse-ring"></div>';
+            } else {
+                el.className = 'w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-1 transition-all relative';
+                el.innerHTML = '<i class="fas fa-' + (p.id === 'maghrib' ? 'moon' : p.id === 'isha' ? 'star' : 'check') + ' text-white/50 text-sm"></i>';
+            }
+        });
+    }
+
+    function updateCountdown() {
+        if (!nextPrayerTarget) return;
+        var now = new Date();
+        var diff = nextPrayerTarget - now;
+        if (diff <= 0) { updatePrayerUI(); return; }
+        var h = Math.floor(diff / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        document.getElementById('countdown').textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    }
+
+    // ===================== TOGGLES =====================
+    function togglePrayer(el, name) {
+        state.prayers[name] = !state.prayers[name];
+        var icon = el.querySelector('div');
+        var i = icon.querySelector('i');
+        if (state.prayers[name]) {
+            icon.classList.remove('bg-white/10');
+            icon.classList.add('bg-emerald-500');
+            i.className = 'fas fa-check text-white text-sm';
+            var pulse = icon.querySelector('.pulse-ring');
+            if (pulse) pulse.remove();
+            state.xp += 10;
+            showToast('+10 نقاط! 🕌');
+            createConfetti();
+            triggerHaptic();
+        } else {
+            icon.classList.add('bg-white/10');
+            icon.classList.remove('bg-emerald-500');
+            i.className = name === 'maghrib' ? 'fas fa-moon text-white/50 text-sm' : name === 'isha' ? 'fas fa-star text-white/50 text-sm' : 'fas fa-check text-emerald-300 text-sm';
+        }
+        saveState();
+        updateProgress();
+        renderProfile();
+    }
+
+    function toggleHabit(id) {
+        var current = state.habits[id] || { completed: false, streak: 0 };
+        state.habits[id].completed = !current.completed;
+        if (state.habits[id].completed) {
+            var habit = habitsData.find(function(h) { return h.id === id; });
+            state.xp += (habit ? habit.xp : 10);
+            showToast('+' + (habit ? habit.xp : 10) + ' نقطة! 🎉');
+            createConfetti();
+            triggerHaptic();
+        }
+        saveState();
+        renderHome();
+        renderProfile();
+    }
+
+    // ===================== HABITS PAGE =====================
+    function renderHabitsPage() {
+        var list = document.getElementById('all-habits');
+        if (!list) return;
+
+        var colors = { emerald: 'emerald', sky: 'sky', indigo: 'indigo', violet: 'violet', orange: 'orange', pink: 'pink', amber: 'amber' };
+        list.innerHTML = habitsData.map(function(h) {
+            var data = state.habits[h.id] || { completed: false, streak: 0 };
+            return '<div class="glass-card p-4 flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-' + colors[h.color] + '-600/30 flex items-center justify-center text-' + colors[h.color] + '-400"><i class="fas ' + h.icon + '"></i></div><div class="flex-1"><h4 class="text-white font-medium">' + h.title + '</h4><div class="flex items-center gap-2 mt-1"><span class="text-xs ' + (data.completed ? 'text-emerald-400' : 'text-white/40') + '">' + (data.completed ? '✓ منجز' : 'غير منجز') + '</span>' + (data.streak > 0 ? '<span class="text-amber-400 text-xs">🔥 ' + data.streak + '</span>' : '') + '</div></div><div class="text-white/40 text-sm">' + (data.completed ? '<i class="fas fa-check-circle text-emerald-400"></i>' : '<i class="far fa-circle"></i>') + '</div></div>';
+        }).join('');
+
+        // Init chart
+        setTimeout(function() {
+            var canvas = document.getElementById('habitsChart');
+            if (canvas && window.Chart && !canvas.dataset.charted) {
+                canvas.dataset.charted = 'true';
+                var ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                        datasets: [{
+                            label: 'نسبة الإنجاز',
+                            data: [65, 80, 45, 90, 75, 60, 85],
+                            borderColor: '#0d8b4a',
+                            backgroundColor: 'rgba(13,139,74,0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#0d8b4a',
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }, 100);
+    }
+
+    // ===================== ATHKAR =====================
+    function switchAthkarTab(type, btn) {
+        currentAthkarTab = type;
+        document.querySelectorAll('#page-athkar .flex-1').forEach(function(b) {
+            b.classList.remove('bg-emerald-600', 'text-white');
+            b.classList.add('bg-white/5', 'text-white/60');
+        });
+        btn.classList.remove('bg-white/5', 'text-white/60');
+        btn.classList.add('bg-emerald-600', 'text-white');
+        renderAthkar(type);
+    }
+
+    function renderAthkar(type) {
+        var list = document.getElementById('athkar-list');
+        var data = athkarData[type];
+        var current = state.athkar[type] || {};
+        var progress = 0;
+        for (var i = 0; i < data.length; i++) {
+            if ((current[i] || 0) >= data[i].count) progress++;
+        }
+
+        document.getElementById('athkar-progress-text').textContent = progress + '/' + data.length;
+        document.getElementById('athkar-progress-bar').style.width = (progress / data.length * 100) + '%';
+
+        list.innerHTML = data.map(function(a, i) {
+            var count = current[i] || 0;
+            var done = count >= a.count;
+            return '<div class="glass-card p-5 ' + (done ? 'opacity-60 border-emerald-500/30' : '') + '"><div class="flex justify-between items-start mb-3"><span class="text-emerald-400 text-xs font-medium bg-emerald-500/10 px-3 py-1 rounded-full">' + a.count + ' ' + (a.count === 1 ? 'مرة' : 'مرات') + '</span>' + (done ? '<span class="text-emerald-400 text-sm"><i class="fas fa-check-circle"></i></span>' : '') + '</div><p class="quran-font text-white text-center mb-4 leading-relaxed">' + a.text + '</p><div class="flex justify-between items-center pt-3 border-t border-white/10"><span class="text-white/40 text-xs">' + a.source + '</span><div class="flex items-center gap-2"><button class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 hover:bg-white/20 transition-colors" onclick="App.resetAthkar(\'' + type + '\', ' + i + ')"><i class="fas fa-undo text-xs"></i></button><span class="text-white/60 text-sm w-8 text-center">' + count + '/' + a.count + '</span><button class="w-10 h-10 rounded-full ' + (done ? 'bg-emerald-800' : 'bg-emerald-600 hover:bg-emerald-500') + ' flex items-center justify-center text-white transition-colors" onclick="App.incrementAthkar(\'' + type + '\', ' + i + ', ' + a.count + ')" ' + (done ? 'disabled' : '') + '><i class="fas fa-plus"></i></button></div></div></div>';
+        }).join('');
+    }
+
+    function incrementAthkar(type, index, max) {
+        if (!state.athkar[type]) state.athkar[type] = {};
+        var current = state.athkar[type][index] || 0;
+        if (current < max) {
+            state.athkar[type][index] = current + 1;
+            if (current + 1 >= max) {
+                state.xp += 5;
+                triggerHaptic();
+                createConfetti();
+                checkAllAthkarDone(type);
+            }
+            saveState();
+            renderAthkar(type);
+        }
+    }
+
+    function resetAthkar(type, index) {
+        if (state.athkar[type] && state.athkar[type][index] > 0) {
+            state.athkar[type][index] = 0;
+            saveState();
+            renderAthkar(type);
+        }
+    }
+
+    function checkAllAthkarDone(type) {
+        var data = athkarData[type];
+        var allDone = true;
+        for (var i = 0; i < data.length; i++) {
+            if ((state.athkar[type][i] || 0) < data[i].count) { allDone = false; break; }
+        }
+        if (allDone) {
+            var habitId = type === 'morning' ? 'athkar_morning' : (type === 'evening' ? 'athkar_evening' : null);
+            if (habitId && state.habits[habitId] && !state.habits[habitId].completed) {
+                state.habits[habitId].completed = true;
+                showToast('اكتملت ' + (type === 'morning' ? 'أذكار الصباح' : 'أذكار المساء') + ' بالكامل! 🌟');
+                createConfetti();
+                saveState();
+                renderHome();
+            }
+        }
+    }
+
+    // ===================== PROFILE =====================
+    function renderProfile() {
+        var name = state.userName || 'ضيف';
+        document.getElementById('profile-avatar').textContent = name.charAt(0);
+        document.getElementById('profile-name').textContent = name;
+        document.getElementById('profile-level').textContent = getLevelName(state.userLevel);
+        document.getElementById('level-text').textContent = 'المستوى ' + state.userLevel + ': ' + getLevelName(state.userLevel);
+        document.getElementById('xp-text').textContent = (state.xp % 100) + '/100 XP';
+        document.getElementById('xp-bar').style.width = (state.xp % 100) + '%';
+        document.getElementById('stat-streak').textContent = state.streak;
+
+        var total = 5 + habitsData.length;
+        var done = Object.values(state.prayers).filter(Boolean).length + habitsData.filter(function(h) { return state.habits[h.id] && state.habits[h.id].completed; }).length;
+        document.getElementById('stat-rate').textContent = Math.round(done / total * 100) + '%';
+
+        renderGarden();
+    }
+
+    function renderGarden() {
+        var grid = document.getElementById('garden-grid');
+        var plants = ['🌱', '🌿', '🌷', '🌻', '🌺', '🌸', '🌼', '🌳'];
+        var days = 28;
+        var html = '';
+        for (var i = 0; i < days; i++) {
+            var day = state.garden[i];
+            var plant = day === true ? plants[Math.min(i, plants.length - 1)] : day === false ? '🥀' : '';
+            var bg = day === true ? 'bg-emerald-500/20' : day === false ? 'bg-red-500/10' : 'bg-white/5';
+            html += '<div class="garden-cell ' + bg + '">' + plant + '</div>';
+        }
+        grid.innerHTML = html;
+    }
+
+    // ===================== MODAL ACTIONS =====================
+    function changeWird(setting, amount) {
+        state.wird[setting] = Math.max(1, state.wird[setting] + amount);
+        if (setting === 'lastPage' && state.wird[setting] > 604) state.wird[setting] = 604;
+        saveState();
+        openModal('wird');
+    }
+
+    function completeWird() {
+        if (!state.habits['wird'].completed) {
+            state.wird.lastPage = Math.min(604, state.wird.lastPage + state.wird.dailyGoal);
+            toggleHabit('wird');
+        } else {
+            showToast('لقد أتممت وردك مسبقاً اليوم! 👏');
+        }
+        closeModal();
+    }
+
+    function changeProgress(id, amount) {
+        if (!state.progress[id]) state.progress[id] = { current: 0 };
+        state.progress[id].current = Math.max(0, state.progress[id].current + amount);
+        saveState();
+        openModal(id);
+    }
+
+    function confirmProgress(id, target) {
+        var current = state.progress[id] ? state.progress[id].current : 0;
+        if (current >= target && !state.habits[id].completed) {
+            toggleHabit(id);
+        } else if (current < target && state.habits[id].completed) {
+            toggleHabit(id);
+        } else {
+            showToast('تم حفظ تقدمك!');
+        }
+        closeModal();
+    }
+
+    // ===================== SETTINGS =====================
+    function toggleNotifications(el) {
+        state.notifications = el.checked;
+        saveState();
+        if (el.checked && 'Notification' in window) {
+            Notification.requestPermission().then(function(p) {
+                if (p === 'granted') showToast('تم تفعيل الإشعارات 🔔');
+                else { el.checked = false; state.notifications = false; showToast('رفضت صلاحية الإشعارات 🔕'); }
+            });
+        } else if (!el.checked) showToast('تم إيقاف الإشعارات 🔕');
+    }
+
+    function toggleHaptics(el) {
+        state.haptics = el.checked;
+        saveState();
+        showToast(el.checked ? 'تم تفعيل الاهتزاز 📳' : 'تم إيقاف الاهتزاز');
+    }
+
+    function exportData() {
+        var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'islamic-habits-backup-' + new Date().toISOString().split('T')[0] + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('تم تصدير البيانات! 💾');
+    }
+
+    function resetData() {
+        if (confirm('هل أنت متأكد من مسح جميع بياناتك وإنجازاتك؟')) {
+            localStorage.removeItem('islamicHabitApp_v2');
+            showToast('تم إعادة الضبط...', 'warning');
+            setTimeout(function() { location.reload(); }, 1000);
+        }
+    }
+
+    // ===================== ONBOARDING =====================
+    function checkOnboarding() {
+        if (state.userName) return;
+        var body = document.getElementById('modal-body');
+        body.innerHTML = '<div class="text-center py-8"><div class="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 mx-auto flex items-center justify-center text-white text-3xl mb-4"><i class="fas fa-seedling"></i></div><h2 class="text-white text-2xl font-bold mb-2">أهلاً بك في عاداتي 🌿</h2><p class="text-white/60 text-sm mb-8">رحلتك نحو عادات إسلامية أفضل تبدأ من هنا</p><div class="space-y-4 mb-8"><div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl"><div class="w-10 h-10 rounded-full bg-emerald-600/30 flex items-center justify-center text-emerald-400"><i class="fas fa-pray"></i></div><div class="text-right"><p class="text-white text-sm font-medium">تتبع الصلوات</p><p class="text-white/50 text-xs">أوقات دقيقة وعداد تنازلي</p></div></div><div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl"><div class="w-10 h-10 rounded-full bg-sky-600/30 flex items-center justify-center text-sky-400"><i class="fas fa-book-open"></i></div><div class="text-right"><p class="text-white text-sm font-medium">عادات يومية</p><p class="text-white/50 text-xs">ورد، أذكار، تعلم، رياضة</p></div></div><div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl"><div class="w-10 h-10 rounded-full bg-amber-600/30 flex items-center justify-center text-amber-400"><i class="fas fa-fire"></i></div><div class="text-right"><p class="text-white text-sm font-medium">سلسلة الإنجاز</p><p class="text-white/50 text-xs">حافظ على استمراريتك يوماً بعد يوم</p></div></div></div><input type="text" id="onboarding-name" class="w-full bg-white/10 border border-white/20 rounded-xl p-4 text-white text-center mb-4 focus:outline-none focus:border-emerald-500" placeholder="ما هو اسمك؟"><button class="w-full py-4 rounded-xl bg-emerald-600 text-white font-bold" onclick="App.saveUserName()">ابدأ رحلتك</button></div>';
+        document.getElementById('modal-overlay').classList.add('show');
+        setTimeout(function() { document.getElementById('modal-content').classList.add('open'); }, 10);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function saveUserName() {
+        var input = document.getElementById('onboarding-name');
+        var name = input.value.trim();
+        if (name && name.length >= 2) {
+            state.userName = name;
+            saveState();
+            closeModal();
+            showToast('أهلاً بك يا ' + name + '! 🎉');
+            renderHome();
+            renderProfile();
+            fetchPrayerTimes();
+        } else {
+            input.style.borderColor = '#ef4444';
+            showToast('الرجاء إدخال اسم صحيح');
+        }
+    }
+
+    // ===================== INIT =====================
+    function init() {
+        // Load theme
+        if (state.theme === 'light') {
+            document.body.classList.add('light-mode');
+            var icon = document.querySelector('#theme-toggle i');
+            if (icon) icon.className = 'fas fa-moon';
+        }
+
+        loadState();
+
+        // Set date
+        document.getElementById('current-date').textContent = formatDate();
+
+        // Render pages
+        renderHome();
+        renderProfile();
+        renderHabitsPage();
+        renderAthkar('morning');
+
+        // Check onboarding
+        checkOnboarding();
+
+        // Fetch prayer times
+        fetchPrayerTimes();
+
+        console.log('✅ عاداتي - Islamic Habits App v2.0 Initialized');
+    }
+
+    // ===================== EXPOSE APP =====================
+    window.App = {
+        navigateTo: navigateTo,
+        toggleTheme: toggleTheme,
+        togglePrayer: togglePrayer,
+        toggleHabit: toggleHabit,
+        openModal: openModal,
+        closeModal: closeModal,
+        switchAthkarTab: switchAthkarTab,
+        incrementAthkar: incrementAthkar,
+        resetAthkar: resetAthkar,
+        changeWird: changeWird,
+        completeWird: completeWird,
+        changeProgress: changeProgress,
+        confirmProgress: confirmProgress,
+        fetchPrayerTimes: fetchPrayerTimes,
+        toggleNotifications: toggleNotifications,
+        toggleHaptics: toggleHaptics,
+        exportData: exportData,
+        resetData: resetData,
+        saveUserName: saveUserName,
+        showToast: showToast
+    };
+
+    // Start
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+</body>
+</html>

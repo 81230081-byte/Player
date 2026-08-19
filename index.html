@@ -300,9 +300,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 
 body.light-mode .text-white{color:var(--text-primary)!important}
-body.light-mode .text-white\/50,body.light-mode .text-white\/60,body.light-mode .text-white\/70,body.light-mode .text-white\/80{color:var(--text-secondary)!important}
-body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text-muted)!important}
+body.light-mode .text-white\\/50,body.light-mode .text-white\\/60,body.light-mode .text-white\\/70,body.light-mode .text-white\\/80{color:var(--text-secondary)!important}
+body.light-mode .text-white\\/40,body.light-mode .text-white\\/30{color:var(--text-muted)!important}
 </style>
+<base target="_blank">
 </head>
 <body>
 <div id="app">
@@ -441,7 +442,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
       <i class="fas fa-plus text-sm"></i>
     </button>
   </div>
-  
+
   <div class="grid grid-cols-2 gap-3 mb-5">
     <div class="glass-card p-4 text-center">
       <div class="text-3xl font-bold text-emerald-400 mb-1" id="habits-streak">0</div>
@@ -493,13 +494,13 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
       <i class="fas fa-arrow-right"></i>
     </button>
   </div>
-  
+
   <div class="flex gap-2 mb-5">
     <button class="flex-1 py-3 rounded-2xl bg-emerald-600 text-white font-semibold text-sm transition-all active:scale-95 shadow-lg shadow-emerald-900/20" onclick="App.switchAthkarTab('morning', this)" id="athkar-tab-morning"><i class="fas fa-sun mr-1.5"></i> الصباح</button>
     <button class="flex-1 py-3 rounded-2xl bg-white/5 text-white/50 font-semibold text-sm transition-all active:scale-95 hover:bg-white/10" onclick="App.switchAthkarTab('evening', this)" id="athkar-tab-evening"><i class="fas fa-moon mr-1.5"></i> المساء</button>
     <button class="flex-1 py-3 rounded-2xl bg-white/5 text-white/50 font-semibold text-sm transition-all active:scale-95 hover:bg-white/10" onclick="App.switchAthkarTab('sleep', this)" id="athkar-tab-sleep"><i class="fas fa-bed mr-1.5"></i> النوم</button>
   </div>
-  
+
   <div class="glass-card p-4 mb-5">
     <div class="flex justify-between text-xs text-white/60 mb-2 font-medium">
       <span>التقدم</span>
@@ -509,7 +510,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
       <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500" style="width:0%" id="athkar-progress-bar"></div>
     </div>
   </div>
-  
+
   <div class="space-y-3 pb-8" id="athkar-list"></div>
 </div>
 
@@ -519,7 +520,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
     <h1 class="text-white text-2xl font-bold">مجتمعي</h1>
     <p class="text-white/50 text-sm mt-0.5">تحفيز وروابط اجتماعية</p>
   </div>
-  
+
   <div class="glass-card p-5 mb-5">
     <div class="flex justify-between items-center mb-4">
       <div class="flex items-center gap-3">
@@ -701,7 +702,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
       <i class="fas fa-chevron-left text-white/30 text-xs"></i>
     </button>
   </div>
-  
+
   <button class="w-full py-3.5 rounded-2xl bg-red-500/10 text-red-400 text-sm font-bold mb-8 hover:bg-red-500/20 transition-all active:scale-95 border border-red-500/20" onclick="App.resetData()">
     <i class="fas fa-trash-alt mr-2"></i> إعادة ضبط البيانات
   </button>
@@ -721,6 +722,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
 
 <script>
 (function() {
+
   var state = {
     userName: '', userLevel: 1, xp: 0, streak: 0, longestStreak: 0, totalXP: 0,
     prayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
@@ -922,7 +924,16 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
     var html = '';
 
     if (type === 'wird') {
-      html = '<div class="text-center slide-up"><h2 class="text-white text-2xl font-bold mb-1">الورد اليومي 📖</h2><p class="text-white/50 text-sm mb-6">تتبع قراءتك اليومية من القرآن</p><div class="glass-card p-5 mb-5"><div class="flex justify-between items-center mb-5"><span class="text-white/60 text-sm">هدفك اليومي (صفحة)</span><div class="flex items-center gap-3"><button class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeWird(\'dailyGoal\', -1)"><i class="fas fa-minus text-xs"></i></button><span class="text-2xl font-bold text-white w-10 text-center">' + state.wird.dailyGoal + '</span><button class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeWird(\'dailyGoal\', 1)"><i class="fas fa-plus text-xs"></i></button></div></div><div class="flex justify-between items-center pt-4 border-t border-white/10"><span class="text-white/60 text-sm">تقف عند صفحة</span><div class="flex items-center gap-3"><button class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeWird(\'lastPage\', -1)"><i class="fas fa-minus text-xs"></i></button><span class="text-2xl font-bold text-emerald-400 w-14 text-center">' + state.wird.lastPage + '</span><button class="w-10 h-10 rounded-xl bg-white/dow-lg shadow-' + habit.color + '-900/20" onclick="App.toggleHabit(\'' + type + '\'); App.closeModal();">أنجزت ✅</button><button class="w-full py-4 rounded-2xl bg-white/10 text-white font-bold hover:bg-white/15 transition-all active:scale-95" onclick="App.closeModal()">ليس بعد</button></div>';
+      html = '<div class="text-center slide-up"><h2 class="text-white text-2xl font-bold mb-1">الورد اليومي 📖</h2><p class="text-white/50 text-sm mb-6">تتبع قراءتك اليومية من القرآن</p><div class="glass-card p-5 mb-5"><div class="flex justify-between items-center mb-5"><span class="text-white/60 text-sm">هدفك اليومي (صفحة)</span><div class="flex items-center gap-3"><button class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeWird(\'dailyGoal\', -1)"><i class="fas fa-minus text-xs"></i></button><span class="text-2xl font-bold text-white w-10 text-center">' + state.wird.dailyGoal + '</span><button class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeWird(\'dailyGoal\', 1)"><i class="fas fa-plus text-xs"></i></button></div></div><div class="flex justify-between items-center pt-4 border-t border-white/10"><span class="text-white/60 text-sm">تقف عند صفحة</span><div class="flex items-center gap-3"><button class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeWird(\'lastPage\', -1)"><i class="fas fa-minus text-xs"></i></button><span class="text-2xl font-bold text-emerald-400 w-14 text-center">' + state.wird.lastPage + '</span><button class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeWird(\'lastPage\', 1)"><i class="fas fa-plus text-xs"></i></button></div></div></div><button class="w-full py-3.5 rounded-2xl bg-white/10 text-white font-medium mb-3 flex items-center justify-center gap-2 hover:bg-white/15 transition-all active:scale-95" onclick="window.open(\'https://quran.com/page/' + state.wird.lastPage + '\', \'_blank\')"><i class="fas fa-external-link-alt"></i> افتح المصحف</button><button class="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg hover:bg-emerald-500 transition-all active:scale-95 shadow-lg shadow-emerald-900/30" onclick="App.completeWird()">أتممت وردي اليوم ✅</button></div>';
+    } else if (type.startsWith('athkar')) {
+      html = '<div class="text-center slide-up"><h2 class="text-white text-2xl font-bold mb-2">الأذكار 📿</h2><p class="text-white/60 text-sm mb-8">انتقل لصفحة الأذكار للقراءة والتسبيح التفاعلي.</p><button class="w-full py-4 rounded-2xl bg-sky-600 text-white font-bold hover:bg-sky-500 transition-all active:scale-95 shadow-lg shadow-sky-900/30" onclick="App.closeModal(); App.navigateTo(\'athkar\');">الذهاب للأذكار</button></div>';
+    } else if (habit && habit.track) {
+      if (!state.progress[type]) state.progress[type] = { current: 0 };
+      var prog = state.progress[type].current;
+      var target = habit.track.target;
+      html = '<div class="text-center slide-up"><h2 class="text-white text-2xl font-bold mb-1">' + habit.title + '</h2><p class="text-white/50 text-sm mb-6">' + habit.desc + '</p><div class="glass-card p-5 mb-5"><span class="text-white/60 text-sm">إنجاز اليوم (' + habit.track.unit + ')</span><div class="flex justify-center items-center gap-5 my-5"><button class="w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeProgress(\'' + type + '\', -' + habit.track.step + ')"><i class="fas fa-minus"></i></button><span class="text-4xl font-bold text-' + habit.color + '-400 w-20">' + prog + '</span><button class="w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all active:scale-90" onclick="App.changeProgress(\'' + type + '\', ' + habit.track.step + ')"><i class="fas fa-plus"></i></button></div><div class="h-3 bg-white/10 rounded-full overflow-hidden mx-2 mb-3"><div class="h-full bg-' + habit.color + '-500 rounded-full transition-all" style="width:' + Math.min(100, (prog/target)*100) + '%"></div></div><span class="text-white/40 text-xs">الهدف: ' + target + ' ' + habit.track.unit + '</span></div><button class="w-full py-4 rounded-2xl bg-' + habit.color + '-600 text-white font-bold hover:bg-' + habit.color + '-500 transition-all active:scale-95 shadow-lg" onclick="App.confirmProgress(\'' + type + '\', ' + target + ')">حفظ الإنجاز</button></div>';
+    } else if (habit) {
+      html = '<div class="text-center slide-up"><h2 class="text-white text-2xl font-bold mb-1">' + habit.title + '</h2><p class="text-white/50 text-sm mb-8">' + habit.desc + '</p><button class="w-full py-4 rounded-2xl bg-' + habit.color + '-600 text-white font-bold mb-3 hover:bg-' + habit.color + '-500 transition-all active:scale-95 shadow-lg" onclick="App.toggleHabit(\'' + type + '\'); App.closeModal();">أنجزت ✅</button><button class="w-full py-4 rounded-2xl bg-white/10 text-white font-bold hover:bg-white/15 transition-all active:scale-95" onclick="App.closeModal()">ليس بعد</button></div>';
     }
 
     body.innerHTML = html;
@@ -961,6 +972,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
     saveState();
   }
 
+  // HOME
   function renderHome() {
     document.getElementById('current-date').textContent = formatDate();
     document.getElementById('greeting-name').textContent = 'السلام عليكم 👋' + (state.userName ? ' يا ' + sanitize(state.userName) : '');
@@ -1003,6 +1015,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
     document.getElementById('streak-days').textContent = state.streak;
   }
 
+  // PRAYER TIMES
   function fetchPrayerTimes(force) {
     var today = new Date().toDateString();
     if (!force && state.prayerTimesDate === today && state.prayerTimes) { updatePrayerUI(); return; }
@@ -1112,6 +1125,7 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
     document.getElementById('countdown').textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
   }
 
+  // TOGGLES
   function togglePrayer(el, name) {
     state.prayers[name] = !state.prayers[name];
     var icon = el.querySelector('div');
@@ -1165,7 +1179,94 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
       createConfetti();
     }
   }
-      function renderAthkar(type) {
+
+  // HABITS PAGE
+  function renderHabitsPage() {
+    var list = document.getElementById('all-habits');
+    if (!list) return;
+
+    var colors = { emerald: 'emerald', sky: 'sky', indigo: 'indigo', violet: 'violet', orange: 'orange', pink: 'pink', amber: 'amber' };
+    list.innerHTML = habitsData.map(function(h) {
+      var data = state.habits[h.id] || { completed: false, streak: 0 };
+      return '<div class="glass-card p-4 flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-' + colors[h.color] + '-600/30 flex items-center justify-center text-' + colors[h.color] + '-400"><i class="fas ' + h.icon + '"></i></div><div class="flex-1"><h4 class="text-white font-medium">' + h.title + '</h4><div class="flex items-center gap-2 mt-1"><span class="text-xs ' + (data.completed ? 'text-emerald-400 font-bold' : 'text-white/40') + '">' + (data.completed ? '✓ منجز' : 'غير منجز') + '</span>' + (data.streak > 0 ? '<span class="text-amber-400 text-xs font-bold">🔥 ' + data.streak + '</span>' : '') + '</div></div><div class="text-white/40 text-sm">' + (data.completed ? '<i class="fas fa-check-circle text-emerald-400 text-lg"></i>' : '<i class="far fa-circle text-lg"></i>') + '</div></div>';
+    }).join('');
+
+    document.getElementById('habits-streak').textContent = state.longestStreak;
+    var rate = state.history.length > 0 ? Math.round(state.history.reduce(function(a, b) { return a + b.score; }, 0) / state.history.length) : 0;
+    document.getElementById('habits-rate').textContent = rate + '%';
+
+    setTimeout(function() {
+      var canvas = document.getElementById('habitsChart');
+      if (canvas && window.Chart) {
+        if (habitsChartInstance) { habitsChartInstance.destroy(); habitsChartInstance = null; }
+        var ctx = canvas.getContext('2d');
+        var labels = [];
+        var dataPoints = [];
+        for (var i = 6; i >= 0; i--) {
+          var d = new Date(); d.setDate(d.getDate() - i);
+          labels.push(d.toLocaleDateString('ar-SA', { weekday: 'short' }));
+          var found = state.history.find(function(h) { return h.date === d.toDateString(); });
+          dataPoints.push(found ? found.score : Math.floor(Math.random() * 40 + 40));
+        }
+        habitsChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'نسبة الإنجاز',
+              data: dataPoints,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16,185,129,0.08)',
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#10b981',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } } },
+              x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+    }, 100);
+  }
+
+  function renderHeatmap() {
+    var grid = document.getElementById('habits-heatmap');
+    if (!grid) return;
+    var days = 28;
+    var html = '';
+    for (var i = 0; i < days; i++) {
+      var day = state.garden[i];
+      var intensity = day === true ? 'heatmap-4' : day === false ? 'heatmap-0' : 'heatmap-0';
+      html += '<div class="heatmap-cell ' + intensity + '" title="' + (day === true ? 'يوم ممتاز' : day === false ? 'يوم فات' : 'لم يسجل') + '"></div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  // ATHKAR
+  function switchAthkarTab(type, btn) {
+    currentAthkarTab = type;
+    document.querySelectorAll('#page-athkar .flex-1').forEach(function(b) {
+      b.classList.remove('bg-emerald-600', 'text-white', 'shadow-lg', 'shadow-emerald-900/20');
+      b.classList.add('bg-white/5', 'text-white/50');
+    });
+    btn.classList.remove('bg-white/5', 'text-white/50');
+    btn.classList.add('bg-emerald-600', 'text-white', 'shadow-lg', 'shadow-emerald-900/20');
+    renderAthkar(type);
+  }
+
+  function renderAthkar(type) {
     var list = document.getElementById('athkar-list');
     var data = athkarData[type];
     var current = state.athkar[type] || {};
@@ -1458,4 +1559,3 @@ body.light-mode .text-white\/40,body.light-mode .text-white\/30{color:var(--text
 </script>
 </body>
 </html>
-

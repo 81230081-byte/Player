@@ -194,7 +194,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     </div>
     <div class="glass-card p-4 mb-5">
         <h3 class="text-white font-semibold mb-3 text-sm">معدل الإنجاز (آخر ٧ أيام)</h3>
-        <canvas id="habitsChart" height="150"></canvas>
+        <div style="height:150px;position:relative;">
+            <canvas id="habitsChart"></canvas>
+        </div>
     </div>
     <div class="space-y-3" id="all-habits"></div>
 </div>
@@ -741,6 +743,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     }
 
     // ===================== HABITS PAGE =====================
+    var habitsChartInstance = null;
+
     function renderHabitsPage() {
         var list = document.getElementById('all-habits');
         if (!list) return;
@@ -751,13 +755,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
             return '<div class="glass-card p-4 flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-' + colors[h.color] + '-600/30 flex items-center justify-center text-' + colors[h.color] + '-400"><i class="fas ' + h.icon + '"></i></div><div class="flex-1"><h4 class="text-white font-medium">' + h.title + '</h4><div class="flex items-center gap-2 mt-1"><span class="text-xs ' + (data.completed ? 'text-emerald-400' : 'text-white/40') + '">' + (data.completed ? '✓ منجز' : 'غير منجز') + '</span>' + (data.streak > 0 ? '<span class="text-amber-400 text-xs">🔥 ' + data.streak + '</span>' : '') + '</div></div><div class="text-white/40 text-sm">' + (data.completed ? '<i class="fas fa-check-circle text-emerald-400"></i>' : '<i class="far fa-circle"></i>') + '</div></div>';
         }).join('');
 
-        // Init chart
+        // Init chart with fixed height and destroy old instance
         setTimeout(function() {
             var canvas = document.getElementById('habitsChart');
-            if (canvas && window.Chart && !canvas.dataset.charted) {
-                canvas.dataset.charted = 'true';
+            if (canvas && window.Chart) {
+                // Destroy old chart if exists
+                if (habitsChartInstance) {
+                    habitsChartInstance.destroy();
+                    habitsChartInstance = null;
+                }
                 var ctx = canvas.getContext('2d');
-                new Chart(ctx, {
+                habitsChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
